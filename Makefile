@@ -2,7 +2,6 @@
 CC=gcc
 CFLAGS=
 LDFLAGS=-lm
-CMACROS=
 
 # Nim Compiler Settings
 NIMC=nim
