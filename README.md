@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 ```
 
 ```Nim
-// Nim Example
+# Nim Example
 import sol/sol
 
 var a: Vec2 = vec2_init(0, 1, 2)
