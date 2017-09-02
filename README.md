@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 ```
 
 ```Nim
-// Nim Example
+# Nim Example
 import sol/sol
 
 var a: Vec2 = vec2_init(0, 1, 2)
@@ -40,10 +40,43 @@ sol.vec2_print(c)
 ```
 
 # Installation
-Installing Sol will add the source code to your `/usr/local/include` directory and the static and dynamic libraries built via gcc to your `/usr/local/lib` directory.
+Installing Sol will add the source code to your `/usr/local/include` directory and the static and dynamic libraries (`libsol-a.a` and `libsol-so.so`) built via gcc to your `/usr/local/lib` directory.
 
 ```Bash
 git clone https://github.com/TeamEpoch/sol
 cd sol
 make install
 ```
+
+# Usage
+Suppose we've installed Sol and have the following code:
+
+```C
+// test.c
+#include <sol/sol.h>
+
+int main() {
+  Vec2 a = vec2_init(0, 5);
+  vec2_print(a);
+}
+```
+
+To compile this with the static Sol library:
+
+```Bash
+cc test.c -lsol-a -L/usr/local/lib -lm
+```
+
+To compile it with the dynamic Sol library:
+
+```Bash
+cc test.c -lsol-so -L/usr/local/lib
+```
+
+Note that to run the dynamic version you must do:
+
+```Bash
+export LD_LIBRARY_PATH=/usr/local/lib
+```
+
+before runtime.
