@@ -1,1 +1,5 @@
--- Terra Bindings
+-------------------------------------------------------------
+-- sol.t ----------------------------------------------------
+-- Description: Terra bindings for the Sol vector library. --
+-- Author: Team Epoch (https://github.com/TeamEpoch/sol) ----
+-------------------------------------------------------------
