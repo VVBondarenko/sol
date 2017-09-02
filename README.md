@@ -75,7 +75,7 @@ gcc test.c -lsol-so -L/usr/local/lib
 
 Note that to run the dynamic version you must do:
 
-```
+```Bash
 export LD_LIBRARY_PATH=/usr/local/lib
 ```
 
