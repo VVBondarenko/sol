@@ -38,3 +38,12 @@ b = sol.vec2_init(2, 1, 0)
 c = sol.vec2_cross(a, b)
 sol.vec2_print(c)
 ```
+
+# Installation
+Installing Sol will add the source code to your `/usr/local/include` directory and the static and dynamic libraries built via gcc to your `/usr/local/lib` directory.
+
+```Bash
+git clone https://github.com/TeamEpoch/sol
+cd sol
+make install
+```
