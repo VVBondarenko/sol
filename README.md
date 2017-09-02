@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 }
 ```
 
-```
+```Nim
 // Nim Example
 import sol/sol
 
@@ -29,7 +29,7 @@ var c: Vec2 = vec2_cross(a, b)
 vec2_print(c)
 ```
 
-```
+```Terra
 -- Terra Example
 local sol = require("sol/sol")
 
