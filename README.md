@@ -42,13 +42,17 @@ sol.vec2_print(c)
 # Installation
 Installing Sol will add the source code to your `/usr/local/include` directory and the static and dynamic libraries (`libsol-a.a` and `libsol-so.so`) built via gcc to your `/usr/local/lib` directory.
 
+Note that this is optional-- you could just bundle Sol into your application if it is open source.
+
 ```Bash
 git clone https://github.com/TeamEpoch/sol
 cd sol
-make install
+make install ARGS=-O2 # The ARGS variable passes command line arguments to cc.
 ```
 
-# Usage
+Side tip: You can use the "-D" option to pass macros to the compiler via the `ARGS` variable exposed by the Makefile, so you could enable features like `SOL_OMP`, `SOL_SIMD`, etc. as you please. Such optimizations could lead to huge performance gains if your target platform supports them.
+
+# Library Usage
 Suppose we've installed Sol and have the following code:
 
 ```C
