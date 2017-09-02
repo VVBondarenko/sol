@@ -64,13 +64,13 @@ int main() {
 To compile this with the static Sol library:
 
 ```Bash
-gcc test.c -lsol-a -L/usr/local/lib -lm
+cc test.c -lsol-a -L/usr/local/lib -lm
 ```
 
 To compile it with the dynamic Sol library:
 
 ```Bash
-gcc test.c -lsol-so -L/usr/local/lib
+cc test.c -lsol-so -L/usr/local/lib
 ```
 
 Note that to run the dynamic version you must do:
