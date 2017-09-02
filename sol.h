@@ -417,13 +417,13 @@ void vec3_print(Vec3 v);
  // Vec4 Function Declarations ////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-sol_inline Vec4 vec4_init(sol_f x, sol_f y, sol_f z, sol_f w);
-sol_inline Vec4 vec4_initf(sol_f f);
-sol_inline Vec4 vec4_zero(void);
+Vec4 vec4_init(sol_f x, sol_f y, sol_f z, sol_f w);
+Vec4 vec4_initf(sol_f f);
+Vec4 vec4_zero(void);
 
-sol_inline Vec4 vec4_norm(Vec4 q);
-sol_inline sol_f vec4_mag(Vec4 q);
+Vec4 vec4_norm(Vec4 q);
+sol_f vec4_mag(Vec4 q);
 
-sol_inline void vec4_print(Vec4 q);
+void vec4_print(Vec4 q);
 
 #endif // SOL_H
