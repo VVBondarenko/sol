@@ -2,6 +2,7 @@
 CC=gcc
 CFLAGS=
 LDFLAGS=-lm
+CMACROS=
 
 # Nim Compiler Settings
 NIMC=nim
@@ -21,6 +22,9 @@ CSOURCE=sol.h $(SOL_MODSRC) $(SOL_VECSRC) $(SOL_FLTSRC)
 NIMSOURCE=sol.nim
 TERRASOURCE=sol.t
 
+# Build Variables
+ARGS=
+
 # Build Options
 all: build
 
@@ -28,15 +32,15 @@ build: statlib dylib
 
 statlib:
 	-@printf "[sol] Making static library..."
-	-@$(CC) $(CFLAGS) -c $(CSOURCE) $(LDFLAGS)
+	-@$(CC) $(CFLAGS) -c $(CSOURCE) $(LDFLAGS) $(ARGS)
 	-@ar rc libsol-a.a *.o
 	-@rm -rf *.o *.gch *.out *~
 	-@printf "done.\n"
 
 dylib:
 	-@printf "[sol] Making dynamic library..."
-	-@$(CC) $(CFLAGS) -c -fPIC $(CSOURCE) $(LDFLAGS)
-	-@$(CC) $(CLFAGS) -shared -fPIC -Wl,-soname,libsol-so.so -o libsol-so.so *.o $(LDFLAGS) -lc
+	-@$(CC) $(CFLAGS) -c -fPIC $(CSOURCE) $(LDFLAGS) $(ARGS)
+	-@$(CC) $(CLFAGS) -shared -fPIC -Wl,-soname,libsol-so.so -o libsol-so.so *.o $(LDFLAGS) -lc $(ARGS)
 	-@rm -rf *.o *.gch *.out *~
 	-@printf "done.\n"
 
