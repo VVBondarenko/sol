@@ -16,11 +16,11 @@ struct type_mystruct {
 } MyStruct;
 ```
 
-# Bracketing Style
-Not backed by functionality, purely an aesthetical choice.
+# Bracketing & Indentation Style
+Again, not backed by functionality, purely an aesthetical choice.
 ```C
 int main() {
-  // code
+  // double-spaced code indentation
 }
 ```
 
