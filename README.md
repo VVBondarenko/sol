@@ -42,7 +42,7 @@ sol.vec2_print(c)
 # Installation
 Installing Sol will add the source code to your `/usr/local/include` directory and the static and dynamic libraries (`libsol-a.a` and `libsol-so.so`) built via gcc to your `/usr/local/lib` directory.
 
-Note that this is optional-- you could just bundle Sol into your application if it is open source.
+Note that this is optional-- you could just bundle Sol into your application.
 
 ```Bash
 git clone https://github.com/TeamEpoch/sol
