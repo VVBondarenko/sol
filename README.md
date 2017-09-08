@@ -28,7 +28,7 @@ var b: Vec2 = vec2_init(2, 1, 0)
 var c: Vec2 = vec2_cross(a, b)
 vec2_print(c)
 ```
-NOTE: I am uncertain if Nim can leverage an install of sol.
+NOTE: I am uncertain if Terra can leverage an install of sol.
 ```Terra
 -- Terra Example
 local sol = require("sol/sol")
