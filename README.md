@@ -48,7 +48,7 @@ Note that this is optional-- you could just bundle Sol into your application.
 git clone https://github.com/TeamEpoch/sol
 cd sol
 make build ARGS=-02 # The ARGS variable passes command line arguments to cc.
-make install ARGS=-O2
+make install
 ```
 
 Side tip: You can use the "-D" option to pass macros to the compiler via the `ARGS` variable exposed by the Makefile, so you could enable features like `SOL_OMP`, `SOL_SIMD`, etc. as you please. Such optimizations could lead to huge performance gains if your target platform supports them.
