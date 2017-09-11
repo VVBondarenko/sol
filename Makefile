@@ -43,7 +43,7 @@ dylib:
 	-@rm -rf *.o *.gch *.out *~
 	-@printf "done.\n"
 
-install: build
+install:
 	-@printf "[sol] Adding libsol-a.a to /usr/local/lib..."
 	-@sudo cp -r libsol-a.a /usr/local/lib
 	-@printf "done.\n"
