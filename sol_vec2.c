@@ -1,5 +1,5 @@
     /////////////////////////////////////////////////////////////////////
-   // sol_vec2.h ///////////////////////////////////////////////////////
+   // sol_vec2.c ///////////////////////////////////////////////////////
   // Description: Adds 2D vector/position functionality to Sol. ///////
  // Author: Team Epoch (https://github.com/TeamEpoch/sol) ////////////
 /////////////////////////////////////////////////////////////////////
@@ -35,7 +35,16 @@
 
 sol_inline
 Vec2 vec2_init(sol_f x, sol_f y) {
-  Vec2 out = {x, y};
+  #ifdef SOL_SIMD
+        Vec2 out;
+        #if SOL_F_SIZE >= 64
+              out.vec = _mm_set_pd(x, y);
+        #else
+              out.vec = _mm_set_ps(x, y, 0, 0);
+        #endif // SOL_F_SIZE
+  #else
+        Vec2 out = {x, y};
+  #endif // SOL_SIMD
   return out;
 }
 
@@ -166,8 +175,18 @@ sol_f vec2_dot(Vec2 a, Vec2 b) {
 
 sol_inline
 Vec2 vec2_add(Vec2 a, Vec2 b) {
-  return vec2_init(a.x + b.x,
-                   a.y + b.y);
+  Vec2 out;
+  #ifdef SOL_SIMD
+        #if SOL_F_SIZE >= 64
+              out.vec = _mm_add_pd(a.vec, b.vec);
+        #else
+              out.vec = _mm_add_ps(a.vec, b.vec);
+        #endif // SOL_F_SIZE
+  #else
+        out.x = a.x + b.x;
+        out.y = a.y + b.y;
+  #endif // SOL_SIMD
+  return out;
 }
 
 /// vec2_addf ///
@@ -195,8 +214,18 @@ Vec2 vec2_addf(Vec2 v, sol_f f) {
 
 sol_inline
 Vec2 vec2_sub(Vec2 a, Vec2 b) {
-  return vec2_init(a.x - b.x,
-                   a.y - b.y);
+  Vec2 out;
+  #ifdef SOL_SIMD
+        #if SOL_F_SIZE >= 64
+              out.vec = _mm_sub_pd(a.vec, b.vec);
+        #else
+              out.vec = _mm_sub_ps(a.vec, b.vec);
+        #endif // SOL_F_SIZE
+  #else
+        out.x = a.x - b.x;
+        out.y = a.y - b.y;
+  #endif // SOL_SIMD
+  return out;
 }
 
 /// vec2_subf ///
@@ -238,8 +267,18 @@ Vec2 vec2_fsub(sol_f f, Vec2 v) {
 
 sol_inline
 Vec2 vec2_mult(Vec2 a, Vec2 b) {
-  return vec2_init(a.x * b.x,
-                   a.y * b.y);
+  Vec2 out;
+  #ifdef SOL_SIMD
+        #if SOL_F_SIZE >= 64
+              out.vec = _mm_mul_pd(a.vec, b.vec);
+        #else
+              out.vec = _mm_mul_ps(a.vec, b.vec);
+        #endif // SOL_F_SIZE
+  #else
+        out.x = a.x * b.x;
+        out.y = a.y * b.y;
+  #endif // SOL_SIMD
+  return out;
 }
 
 /// vec2_multf ///
@@ -267,8 +306,18 @@ Vec2 vec2_multf(Vec2 v, sol_f f) {
 
 sol_inline
 Vec2 vec2_div(Vec2 a, Vec2 b) {
-  return vec2_init(a.x / b.x,
-                   a.y / b.y);
+  Vec2 out;
+  #ifdef SOL_SIMD
+        #if SOL_F_SIZE >= 64
+              out.vec = _mm_div_pd(a.vec, b.vec);
+        #else
+              out.vec = _mm_div_ps(a.vec, b.vec);
+        #endif // SOL_F_SIZE
+  #else
+        out.x = a.x / b.x;
+        out.y = a.y / b.y;
+  #endif // SOL_SIMD
+  return out;
 }
 
 /// vec2_divf ///

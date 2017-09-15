@@ -1,5 +1,5 @@
     //////////////////////////////////////////////////////////////////////
-   // sol_vec4.h ////////////////////////////////////////////////////////
+   // sol_vec4.c ////////////////////////////////////////////////////////
   // Description: Adds 4D quaternion/axis-angle functionality to Sol. //
  // Author: Team Epoch (https://github.com/TeamEpoch/sol) /////////////
 //////////////////////////////////////////////////////////////////////
@@ -38,7 +38,19 @@
 
 sol_inline
 Vec4 vec4_init(sol_f x, sol_f y, sol_f z, sol_f w) {
-  Vec4 out = {x, y, z, w};
+  Vec4 out;
+  #ifdef SOL_SIMD
+        #if SOL_F_SIZE >= 64
+              out.vec = _mm256_set_pd(x, y, z, w);
+        #else
+              out.vec = _mm_set_ps(x, y, z, w);
+        #endif // SOL_F_SIZE
+  #else
+        out.x = x;
+        out.y = y;
+        out.z = z;
+        out.w = w;
+  #endif // SOL_SIMD
   return out;
 }
 

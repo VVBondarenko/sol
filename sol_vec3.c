@@ -1,5 +1,5 @@
     /////////////////////////////////////////////////////////////////////
-   // sol_vec3.h ///////////////////////////////////////////////////////
+   // sol_vec3.c ///////////////////////////////////////////////////////
   // Description: Adds 3D vector/position functionality to Sol. ///////
  // Author: Team Epoch (https://github.com/TeamEpoch/sol) ////////////
 /////////////////////////////////////////////////////////////////////
@@ -36,7 +36,18 @@
 
 sol_inline
 Vec3 vec3_init(sol_f x, sol_f y, sol_f z) {
-  Vec3 out = {x, y, z};
+  Vec3 out;
+  #ifdef SOL_SIMD
+        #if SOL_F_SIZE >= 64
+              out.vec = _mm256_set_pd(x, y, z, 0);
+        #else
+              out.vec = _mm_set_ps(x, y, z, 0);
+        #endif // SOL_F_SIZE
+  #else
+        out.x = x;
+        out.y = y;
+        out.z = z;
+  #endif // SOL_SIMD
   return out;
 }
 
@@ -66,8 +77,8 @@ Vec3 vec3_zero(void) {
   return vec3_initf((sol_f) 0);
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// Vec3 Core Operations //////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+ // Vec3 Core Operations //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 /// vec3_norm ///
@@ -96,8 +107,8 @@ sol_f vec3_mag(Vec3 v) {
   return sqrt(vec3_dot(v, v));
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// Vec3 Advanced Operations //////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+ // Vec3 Advanced Operations //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 /// vec3_rot ///
@@ -116,8 +127,8 @@ Vec3 vec3_rot(Vec3 v, Vec4 q) {
   return vec3_add(v, vec3_add(vec3_multf(t, q.w), vec3_cross(qv, t)));
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// Vec3 Advanced Math ////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+ // Vec3 Advanced Math ////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 /// vec3_cross ///
@@ -152,8 +163,8 @@ sol_f vec3_dot(Vec3 a, Vec3 b) {
        + (a.z * b.z);
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// Vec3 Basic Math ///////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+ // Vec3 Basic Math ///////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 /// vec3_add ///
@@ -167,9 +178,19 @@ sol_f vec3_dot(Vec3 a, Vec3 b) {
 
 sol_inline
 Vec3 vec3_add(Vec3 a, Vec3 b) {
-  return vec3_init(a.x + b.x,
-                   a.y + b.y,
-                   a.z + b.z);
+  Vec3 out;
+  #ifdef SOL_SIMD
+        #if SOL_F_SIZE >= 64
+              out.vec = _mm256_add_pd(a.vec, b.vec);
+        #else
+              out.vec = _mm_add_ps(a.vec, b.vec);
+        #endif // SOL_F_SIZE
+  #else
+        out.x = a.x + b.x;
+        out.y = a.y + b.y;
+        out.z = a.z + b.z;
+  #endif // SOL_SIMD
+  return out;
 }
 
 /// vec3_addf ///
@@ -197,9 +218,19 @@ Vec3 vec3_addf(Vec3 v, sol_f f) {
 
 sol_inline
 Vec3 vec3_sub(Vec3 a, Vec3 b) {
-  return vec3_init(a.x - b.x,
-                   a.y - b.y,
-                   a.z - b.z);
+  Vec3 out;
+  #ifdef SOL_SIMD
+        #if SOL_F_SIZE >= 64
+              out.vec = _mm256_sub_pd(a.vec, b.vec);
+        #else
+              out.vec = _mm_sub_ps(a.vec, b.vec);
+        #endif // SOL_F_SIZE
+  #else
+        out.x = a.x - b.x;
+        out.y = a.y - b.y;
+        out.z = a.z - b.z;
+  #endif // SOL_SIMD
+  return out;
 }
 
 /// vec3_subf ///
@@ -241,9 +272,19 @@ Vec3 vec3_fsub(sol_f f, Vec3 v) {
 
 sol_inline
 Vec3 vec3_mult(Vec3 a, Vec3 b) {
-  return vec3_init(a.x * b.x,
-                   a.y * b.y,
-                   a.z * b.z);
+  Vec3 out;
+  #ifdef SOL_SIMD
+        #if SOL_F_SIZE >= 64
+              out.vec = _mm256_mul_pd(a.vec, b.vec);
+        #else
+              out.vec = _mm_mul_ps(a.vec, b.vec);
+        #endif // SOL_F_SIZE
+  #else
+        out.x = a.x * b.x;
+        out.y = a.y * b.y;
+        out.z = a.z * b.z;
+  #endif // SOL_SIMD
+  return out;
 }
 
 /// vec3_multf ///
@@ -271,9 +312,19 @@ Vec3 vec3_multf(Vec3 v, sol_f f) {
 
 sol_inline
 Vec3 vec3_div(Vec3 a, Vec3 b) {
-  return vec3_init(a.x / b.x,
-                   a.y / b.y,
-                   a.z / b.z);
+  Vec3 out;
+  #ifdef SOL_SIMD
+        #if SOL_F_SIZE >= 64
+              out.vec = _mm256_div_pd(a.vec, b.vec);
+        #else
+              out.vec = _mm_div_ps(a.vec, b.vec);
+        #endif // SOL_F_SIZE
+  #else
+        out.x = a.x / b.x;
+        out.y = a.y / b.y;
+        out.z = a.z / b.z;
+  #endif // SOL_SIMD
+  return out;
 }
 
 /// vec3_divf ///
@@ -332,8 +383,8 @@ Vec3 vec3_avgf(Vec3 v, sol_f f) {
   return vec3_avg(v, vec3_initf(f));
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// Vec3 Terminal IO //////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+ // Vec3 Terminal IO //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 /// vec3_print ///

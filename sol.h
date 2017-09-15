@@ -26,9 +26,8 @@
 
 #define SOL_F_SIZE_DEFAULT 64 // Set the size of the sol_f float value.
 #define SOL_INLINE_DEFAULT true // Enables function inlining.
-#define SOL_FAM_DEFAULT true // Enables flexible array members.
-#define SOL_OMP_DEFAULT true // Enables OMP SIMD optimizations.
-#define SOL_SIMD_DEFAULT false // Enables SIMD optimizations.
+#define SOL_FAM_DEFAULT true // Enables FAM, lowering malloc calls.
+#define SOL_SIMD_DEFAULT true // Enables SIMD optimizations.
 
   //////////////////////////////////////////////////////////////////////////////
  // Config Processing /////////////////////////////////////////////////////////
@@ -78,18 +77,6 @@
       #endif // SOL_NO_SIMD
 #endif // !SOL_SIMD && !SOL_NO_SIMD
 
-#if !defined(SOL_OMP) && !defined(SOL_NO_OMP) && !defined(SOL_SIMD)
-      #if SOL_OMP_DEFAULT == true
-            #define SOL_OMP
-      #endif // SOL_OMP_DEFAULT == true
-#else
-      #if defined(SOL_NO_OMP) || defined(SOL_SIMD)
-            #ifdef SOL_OMP
-                  #undef SOL_OMP
-            #endif // SOL_OMP
-      #endif // SOL_NO_OMP || SOL_SIMD
-#endif // !SOL_OMP && !SOL_NO_OMP && !SOL_SIMD
-
   //////////////////////////////////////////////////////////////////////////////
  // Environment Checks ////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -103,13 +90,15 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #ifdef SOL_SIMD
-      #include <immintrin.h>
-      // TODO: Use compiler macros to check for SSE, AVX, etc.
+      #include <x86intrin.h>
+      #ifndef __AVX2__
+            #if SOL_F_SIZE > 32
+                  #pragma message ("[sol.h] No AVX2 support. Forcing 32-bit.")
+                  #undef SOL_F_SIZE
+                  #define SOL_F_SIZE 32
+            #endif
+      #endif
 #endif // SOL_SIMD
-
-#ifdef SOL_OMP
-      #include <omp.h>
-#endif // SOL_OMP
 
   //////////////////////////////////////////////////////////////////////////////
  // Core Macros ///////////////////////////////////////////////////////////////
@@ -150,7 +139,18 @@
 //   struct type_vec2
 
 typedef struct type_vec2 {
-  sol_f x, y;
+  union {
+    struct {
+      sol_f x, y;
+    };
+    #ifdef SOL_SIMD
+          #if SOL_F_SIZE >= 64
+                __m128d vec;
+          #else
+                __m128 vec;
+          #endif // SOL_F_SIZE
+    #endif // SOL_SIMD
+  };
 } Vec2;
 
 /// Vec3 ///
@@ -165,7 +165,18 @@ typedef struct type_vec2 {
 //   struct type_vec3
 
 typedef struct type_vec3 {
-  sol_f x, y, z;
+  union { 
+    struct {
+      sol_f x, y, z;
+    };
+    #ifdef SOL_SIMD
+          #if SOL_F_SIZE >= 64
+                __m256d vec;
+          #else
+                __m128 vec;
+          #endif // SOL_F_SIZE
+    #endif // SOL_SIMD
+  };
 } Vec3;
 
 /// Vec4 ///
@@ -182,7 +193,18 @@ typedef struct type_vec3 {
 //   struct type_vec4
 
 typedef struct type_vec4 {
-  sol_f x, y, z, w;
+  union {
+    struct {
+      sol_f x, y, z, w;
+    };
+    #ifdef SOL_SIMD
+          #if SOL_F_SIZE >= 64
+                __m256d vec;
+          #else
+                __m128 vec;
+          #endif // SOL_F_SIZE
+    #endif // SOL_SIMD
+  };
 } Vec4;
 
 /// Seg2 ///
