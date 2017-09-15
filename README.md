@@ -1,5 +1,5 @@
 # Sol
-Sol is an experimental vector library written in C.
+Sol is an experimental vector library written in C. It implements SIMD-accelerated math and uses quaternions for vector rotation to be efficient.
 
 # Notice
 Sol is not intended to be production-ready code. It is just a hobbyist project. If you use Sol in a large project, be aware that you will have to take responsibility for any bugs that it may have.
