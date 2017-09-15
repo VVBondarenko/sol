@@ -27,7 +27,7 @@
 #define SOL_F_SIZE_DEFAULT 64 // Set the size of the sol_f float value.
 #define SOL_INLINE_DEFAULT true // Enables function inlining.
 #define SOL_FAM_DEFAULT true // Enables FAM, lowering malloc calls.
-#define SOL_SIMD_DEFAULT true // Enables SIMD optimizations.
+#define SOL_SIMD_DEFAULT false // Enables SIMD optimizations.
 
   //////////////////////////////////////////////////////////////////////////////
  // Config Processing /////////////////////////////////////////////////////////
