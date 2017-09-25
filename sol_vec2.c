@@ -1,7 +1,7 @@
     /////////////////////////////////////////////////////////////////////
    // sol_vec2.c ///////////////////////////////////////////////////////
   // Description: Adds 2D vector/position functionality to Sol. ///////
- // Author: Team Epoch (https://github.com/TeamEpoch/sol) ////////////
+ // Author: k1tt3hk4t (https://github.com/k1tt3hk4t/sol) /////////////
 /////////////////////////////////////////////////////////////////////
 
   //////////////////////////////////////////////////////////////////////////////
@@ -35,16 +35,17 @@
 
 sol_inline
 Vec2 vec2_init(sol_f x, sol_f y) {
-  #ifdef SOL_SIMD
-        Vec2 out;
+  Vec2 out;
+  #ifdef SOL_AVX
         #if SOL_F_SIZE >= 64
               out.vec = _mm_set_pd(x, y);
         #else
               out.vec = _mm_set_ps(x, y, 0, 0);
-        #endif // SOL_F_SIZE
-  #else
-        Vec2 out = {x, y};
-  #endif // SOL_SIMD
+        #endif
+  #else // NEON has no special set initialization:
+        out.x = x;
+        out.y = y;
+  #endif
   return out;
 }
 
@@ -59,7 +60,22 @@ Vec2 vec2_init(sol_f x, sol_f y) {
 
 sol_inline
 Vec2 vec2_initf(sol_f f) {
-  return vec2_init(f, f);
+  Vec2 out;
+  #ifdef SOL_AVX
+        #if SOL_F_SIZE >= 64
+              out.vec = _mm_set1_pd(f);
+        #else
+              out.vec = _mm_set1_ps(f);
+        #endif
+  #elif defined(SOL_NEON)
+        #if SOL_F_SIZE >= 64
+              out.vec = vdup_n_f64(f); 
+        #else
+              out.vec = vdup_n_f32(f);
+        #endif
+  #else
+        return vec2_init(f, f);
+  #endif
 }
 
 /// vec2_zero ///
@@ -72,7 +88,7 @@ Vec2 vec2_initf(sol_f f) {
 
 sol_inline
 Vec2 vec2_zero(void) {
-  return vec2_initf((sol_f) 0);
+  return vec2_initf(0);
 }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -176,16 +192,27 @@ sol_f vec2_dot(Vec2 a, Vec2 b) {
 sol_inline
 Vec2 vec2_add(Vec2 a, Vec2 b) {
   Vec2 out;
-  #ifdef SOL_SIMD
+  #ifdef SOL_AVX
         #if SOL_F_SIZE >= 64
               out.vec = _mm_add_pd(a.vec, b.vec);
         #else
               out.vec = _mm_add_ps(a.vec, b.vec);
-        #endif // SOL_F_SIZE
+        #endif
+  #elif defined(SOL_NEON)
+        #if SOL_F_SIZE >= 64
+              out.vec = vadd_f64(a.vec, b.vec);
+        #else
+              out.vec = vadd_f32(a.vec, b.vec);
+        #endif
+  #elif defined(SOL_OMP)
+        #pragma sol_omp
+        for (char i = 0; i < 2; i++) {
+          out.arr[i] = a.arr[i] + b.arr[i];
+        }
   #else
         out.x = a.x + b.x;
         out.y = a.y + b.y;
-  #endif // SOL_SIMD
+  #endif
   return out;
 }
 
@@ -215,16 +242,27 @@ Vec2 vec2_addf(Vec2 v, sol_f f) {
 sol_inline
 Vec2 vec2_sub(Vec2 a, Vec2 b) {
   Vec2 out;
-  #ifdef SOL_SIMD
+  #ifdef SOL_AVX
         #if SOL_F_SIZE >= 64
               out.vec = _mm_sub_pd(a.vec, b.vec);
         #else
               out.vec = _mm_sub_ps(a.vec, b.vec);
-        #endif // SOL_F_SIZE
+        #endif
+  #elif defined(SOL_NEON)
+        #if SOL_F_SIZE >= 64
+              out.vec = vsub_f64(a.vec, b.vec);
+        #else
+              out.vec = vsub_f32(a.vec, b.vec);
+        #endif
+  #elif defined(SOL_OMP)
+        #pragma sol_omp
+        for (char i = 0; i < 2; i++) {
+          out.arr[i] = a.arr[i] - b.arr[i];
+        }
   #else
         out.x = a.x - b.x;
         out.y = a.y - b.y;
-  #endif // SOL_SIMD
+  #endif
   return out;
 }
 
@@ -268,16 +306,27 @@ Vec2 vec2_fsub(sol_f f, Vec2 v) {
 sol_inline
 Vec2 vec2_mult(Vec2 a, Vec2 b) {
   Vec2 out;
-  #ifdef SOL_SIMD
+  #ifdef SOL_AVX
         #if SOL_F_SIZE >= 64
               out.vec = _mm_mul_pd(a.vec, b.vec);
         #else
               out.vec = _mm_mul_ps(a.vec, b.vec);
-        #endif // SOL_F_SIZE
+        #endif
+  #elif defined(SOL_NEON)
+        #if SOL_F_SIZE >= 64
+              out.vec = vsub_f64(a.vec, b.vec);
+        #else
+              out.vec = vsub_f32(a.vec, b.vec);
+        #endif
+  #elif defined(SOL_OMP)
+        #pragma sol_omp
+        for (char i = 0; i < 2; i++) {
+          out.arr[i] = a.arr[i] * b.arr[i];
+        }
   #else
         out.x = a.x * b.x;
         out.y = a.y * b.y;
-  #endif // SOL_SIMD
+  #endif
   return out;
 }
 
@@ -307,16 +356,15 @@ Vec2 vec2_multf(Vec2 v, sol_f f) {
 sol_inline
 Vec2 vec2_div(Vec2 a, Vec2 b) {
   Vec2 out;
-  #ifdef SOL_SIMD
-        #if SOL_F_SIZE >= 64
-              out.vec = _mm_div_pd(a.vec, b.vec);
-        #else
-              out.vec = _mm_div_ps(a.vec, b.vec);
-        #endif // SOL_F_SIZE
+  #ifdef SOL_OMP
+        #pragma sol_omp
+        for (char i = 0; i < 2; i++) {
+          out.arr[i] = a.arr[i] / b.arr[i];
+        }
   #else
         out.x = a.x / b.x;
         out.y = a.y / b.y;
-  #endif // SOL_SIMD
+  #endif
   return out;
 }
 
