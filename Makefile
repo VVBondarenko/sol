@@ -20,32 +20,70 @@ NIMSOURCE=sol.nim
 
 # Build Options #
 
-# ARCH: generic, native, armv8, armv7
-ARCH=generic
-# BITS: 64, 32
-BITS=64
-# SIMD: auto, omp, avx, neon
-SIMD=auto
+# ARCH: default, native, armv8, armv7
+ARCH=default
+# BITS: default, 64, 32
+BITS=default
+# SIMD: default, auto, omp, avx, neon, disabled
+SIMD=default
 # OPT: g, 0, 1, s, 2, 3
 OPT=2
+
+# Build Variables #
+
+# ARCH -> CARCH
+ifeq ($(ARCH), default)
+	CARCH=
+endif
+ifeq ($(ARCH), native)
+	CARCH=-march=native
+endif
+ifeq ($(ARCH), armv8)
+	CARCH=-march=arvm8-a
+endif
+ifeq ($(ARCH), armv7)
+	CARCH=-march=armv7-a
+endif
+
+# BITS -> CBITS
+
+ifeq ($(BITS), default)
+	CBITS=
+endif
+ifeq ($(BITS), 64)
+	CBITS=-m64
+endif
+ifeq ($(BITS), 32)
+	CBITS=-m32
+endif
+
+# SIMD -> CSIMD
+
+ifeq ($(SIMD), default)
+	CSIMD=
+endif
+ifeq ($(SIMD), auto)
+	CSIMD=-DSOL_SIMD
+endif
+ifeq ($(SIMD), omp)
+	CSIMD=-DSOL_OMP
+endif
+ifeq ($(SIMD), avx)
+	CSIMD=-DSOL_AVX
+endif
+ifeq ($(SIMD), neon)
+	CSIMD=-DSOL_NEON
+endif
+ifeq ($(SIMD), disabled)
+	CSIMD=-DSOL_NO_SIMD -DSOL_NO_OMP -DSOL_NO_NEON
+endif
 
 # Build Options
 
 all: build
 
 build:
-ifeq ($(ARCH), generic)
-	-@$(CC) $(CFLAGS) -c -m$(BITS) -O$(OPT) $(CSOURCE) $(LDFLAGS)
-endif
-ifeq ($(ARCH), native)
-	-@$(CC) $(CFLAGS) -c -march=native -m$(BITS) -O$(OPT) $(CSOURCE) $(LDFLAGS)
-endif
-ifeq ($(ARCH), armv8)
-	-@$(CC) $(CFLAGS) -c -march=armv8-a -m$(BITS) -O$(OPT) $(CSOURCE) $(LDFLAGS)
-endif
-ifeq ($(ARCH), armv7)
-	-@$(CC) $(CFLAGS) -c -march=armv7-a -O$(OPT) $(CSOURCE) $(LDFLAGS)
-endif
+	-@$(CC) $(CFLAGS) $(CARCH) $(CBITS) $(CSIMD) -O$(OPT) -c $(CSOURCE) $(LDFLAGS)
 
 dylib:
 	-@$(CC) $(CLFAGS) -shared -fPIC -Wl,-soname,libsol-so.so -o libsol-so.so *.o $(LDFLAGS) -lc
