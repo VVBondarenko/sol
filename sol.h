@@ -1,11 +1,15 @@
     ///////////////////////////////////////////////////////////
    // sol.h //////////////////////////////////////////////////
   // Description: A vector library written only in C. ///////
- // Author: Team Epoch (https://github.com/TeamEpoch/sol) //
+ // Author: k1tt3hk4t (https://github.com/k1tt3hk4t/sol) ///
 ///////////////////////////////////////////////////////////
 
 #ifndef SOL_H
 #define SOL_H
+
+#ifdef __cplusplus
+      extern "C" {
+#endif
 
   //////////////////////////////////////////////////////////////////////////////
  // Standard Headers //////////////////////////////////////////////////////////
@@ -17,65 +21,107 @@
 #include <math.h>
 
   //////////////////////////////////////////////////////////////////////////////
- // Local Headers /////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-  //////////////////////////////////////////////////////////////////////////////
  // Default Config ////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 #define SOL_F_SIZE_DEFAULT 64 // Set the size of the sol_f float value.
 #define SOL_INLINE_DEFAULT true // Enables function inlining.
-#define SOL_FAM_DEFAULT true // Enables FAM, lowering malloc calls.
-#define SOL_SIMD_DEFAULT false // Enables SIMD optimizations.
+#define SOL_FAM_DEFAULT true // Enables C99 "Flexible Array Members" (FAM).
+#define SOL_SIMD_DEFAULT true // Enables automatic selection of OMP/AVX/NEON.
+#define SOL_OMP_DEFAULT false // Enables explicit OpenMP SIMD.
+#define SOL_AVX_DEFAULT false // Enables explicit AVX SIMD.
+#define SOL_NEON_DEFAULT false // Enables explicit NEON SIMD.
 
   //////////////////////////////////////////////////////////////////////////////
  // Config Processing /////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
+
+// SOL_F_SIZE
 
 #if !defined(SOL_F_SIZE)
       #if SOL_F_SIZE_DEFAULT > 32
             #define SOL_F_SIZE 64
       #else
             #define SOL_F_SIZE 32
-      #endif // SOL_F_SIZE_DEFAULT > 32
-#endif // !SOL_F_SIZE
+      #endif
+#endif
+
+// SOL_INLINE
 
 #if !defined(SOL_INLINE) && !defined(SOL_NO_INLINE)
       #if SOL_INLINE_DEFAULT == true
             #define SOL_INLINE
-      #endif // SOL_INLINE_DEFAULT == true
+      #endif
 #else
       #ifdef SOL_NO_INLINE
             #ifdef SOL_INLINE
                   #undef SOL_INLINE
-            #endif // SOL_INLINE
-      #endif // SOL_NO_INLINE
-#endif // !SOL_INLINE && !SOL_NO_INLINE
+            #endif
+      #endif
+#endif
+
+// SOL_FAM
 
 #if !defined(SOL_FAM) && !defined(SOL_NO_FAM)
       #if SOL_FAM_DEFAULT == true
             #define SOL_FAM
-      #endif // SOL_FAM_DEFAULT == true
+      #endif
 #else
       #ifdef SOL_NO_FAM
             #ifdef SOL_FAM
                   #undef SOL_FAM
-            #endif // SOL_FAM
-      #endif // SOL_NO_FAM
-#endif // !SOL_FAM && !SOL_NO_FAM
+            #endif
+      #endif
+#endif
+
+// SOL_SIMD
 
 #if !defined(SOL_SIMD) && !defined(SOL_NO_SIMD)
       #if SOL_SIMD_DEFAULT == true
             #define SOL_SIMD
-      #endif // SOL_SIMD_DEFAULT == true
+      #endif
 #else
       #ifdef SOL_NO_SIMD
-            #ifdef SOL_SIMD
-                  #undef SOL_SIMD
-            #endif // SOL_SIMD
-      #endif // SOL_NO_SIMD
-#endif // !SOL_SIMD && !SOL_NO_SIMD
+            #undef SOL_SIMD
+      #endif
+#endif
+
+// SOL_AVX
+
+#if !defined(SOL_AVX) && !defined(SOL_NO_AVX)
+      #if SOL_AVX_DEFAULT == true
+            #define SOL_AVX
+      #endif
+#else
+      #ifdef SOL_NO_AVX
+            #undef SOL_AVX
+      #endif
+#endif
+
+// SOL_NEON
+
+#if !defined(SOL_NEON) && !defined(SOL_NO_NEON)
+      #if SOL_NEON_DEFAULT == true
+            #define SOL_NEON
+      #endif
+#else
+      #ifdef SOL_NO_NEON
+            #undef SOL_NEON
+      #endif
+#endif
+
+// SOL_OMP
+
+#if !defined(SOL_OMP) && !defined(SOL_NO_OMP)
+      #if SOL_OMP_DEFAULT == true
+            #define SOL_OMP
+      #endif
+#else
+
+      #ifdef SOL_NO_OMP
+            #undef SOL_OMP
+      #endif
+#endif
 
   //////////////////////////////////////////////////////////////////////////////
  // Environment Checks ////////////////////////////////////////////////////////
@@ -85,20 +131,34 @@
       #pragma message ("[sol] Unrecognized compiler. Some features may not work.")
 #endif
 
+#if !defined(SOL_AVX) && !defined(SOL_NEON) && !defined(SOL_OMP)
+      #ifdef SOL_SIMD
+            #ifdef __AVX2__
+                  #define SOL_AVX
+            #elif defined(__AVX__)
+                  #define SOL_AVX
+                  #pragma message ("[sol] No AVX2 support found; Forcing 32-bit.")
+                  #if SOL_F_SIZE >= 64
+                        #undef SOL_F_SIZE
+                        #define SOL_F_SIZE 32
+                  #endif
+            #elif defined(__ARM_NEON__)
+                  #define SOL_NEON
+            #else
+                  #define SOL_OMP
+            #endif
+      #endif
+#endif
+
   //////////////////////////////////////////////////////////////////////////////
  // Nonstandard Headers ///////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef SOL_SIMD
+#ifdef SOL_AVX
       #include <x86intrin.h>
-      #ifndef __AVX2__
-            #if SOL_F_SIZE > 32
-                  #pragma message ("[sol.h] No AVX2 support. Forcing 32-bit.")
-                  #undef SOL_F_SIZE
-                  #define SOL_F_SIZE 32
-            #endif
-      #endif
-#endif // SOL_SIMD
+#elif defined(SOL_NEON)
+      #include <arm_neon.h>
+#endif
 
   //////////////////////////////////////////////////////////////////////////////
  // Core Macros ///////////////////////////////////////////////////////////////
@@ -110,11 +170,17 @@
       #define sol_inline
 #endif
 
+#ifdef SOL_OMP
+      #define sol_omp omp for simd
+#else
+      #define sol_omp
+#endif
+
   //////////////////////////////////////////////////////////////////////////////
  // Core Type Definitions /////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-#if SOL_F_SIZE > 32
+#if SOL_F_SIZE >= 64
       typedef double sol_f;
 #else
       typedef float sol_f;
@@ -123,6 +189,8 @@
   //////////////////////////////////////////////////////////////////////////////
  // Math Macros ///////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
+
+
 
   //////////////////////////////////////////////////////////////////////////////
  // Struct Type Definitions ///////////////////////////////////////////////////
@@ -143,13 +211,20 @@ typedef struct type_vec2 {
     struct {
       sol_f x, y;
     };
-    #ifdef SOL_SIMD
+    sol_f arr[2];
+    #ifdef SOL_AVX
           #if SOL_F_SIZE >= 64
                 __m128d vec;
           #else
                 __m128 vec;
-          #endif // SOL_F_SIZE
-    #endif // SOL_SIMD
+          #endif
+    #elif defined(SOL_NEON)
+          #if SOL_F_SIZE >= 64
+                float64x2_t vec;
+          #else
+                float32x2_t vec;
+          #endif
+    #endif
   };
 } Vec2;
 
@@ -169,13 +244,20 @@ typedef struct type_vec3 {
     struct {
       sol_f x, y, z;
     };
-    #ifdef SOL_SIMD
+    sol_f arr[3];
+    #ifdef SOL_AVX
           #if SOL_F_SIZE >= 64
                 __m256d vec;
           #else
                 __m128 vec;
-          #endif // SOL_F_SIZE
-    #endif // SOL_SIMD
+          #endif
+    #elif defined(SOL_NEON)
+          #if SOL_F_SIZE >= 64
+                float64x4_t vec;
+          #else
+                float32x4_t vec;
+          #endif
+    #endif
   };
 } Vec3;
 
@@ -197,13 +279,20 @@ typedef struct type_vec4 {
     struct {
       sol_f x, y, z, w;
     };
-    #ifdef SOL_SIMD
+    sol_f arr[4];
+    #ifdef SOL_AVX
           #if SOL_F_SIZE >= 64
                 __m256d vec;
           #else
                 __m128 vec;
-          #endif // SOL_F_SIZE
-    #endif // SOL_SIMD
+          #endif
+    #elif defined(SOL_NEON)
+          #if SOL_F_SIZE >= 64
+                float64x4_t vec;
+          #else
+                float32x4_t vec;
+          #endif
+    #endif
   };
 } Vec4;
 
@@ -348,7 +437,7 @@ typedef struct type_mod2 {
         Lnk2 link[];
   #else
         Lnk2 *link;
-  #endif // SOL_FAM
+  #endif
 } *Mod2;
 
 /// Mod3 ///
@@ -370,7 +459,7 @@ typedef struct type_mod3 {
         Lnk3 link[];
   #else
         Lnk3 *link;
-  #endif // SOL_FAM
+  #endif
 } *Mod3;
 
   //////////////////////////////////////////////////////////////////////////////
@@ -448,4 +537,8 @@ sol_f vec4_mag(Vec4 q);
 
 void vec4_print(Vec4 q);
 
-#endif // SOL_H
+#ifdef __cplusplus
+      }
+#endif
+
+#endif

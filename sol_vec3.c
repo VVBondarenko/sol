@@ -1,7 +1,7 @@
     /////////////////////////////////////////////////////////////////////
    // sol_vec3.c ///////////////////////////////////////////////////////
   // Description: Adds 3D vector/position functionality to Sol. ///////
- // Author: Team Epoch (https://github.com/TeamEpoch/sol) ////////////
+ // Author: k1tt3hk4t (https://github.com/k1tt3hk4t/sol) /////////////
 /////////////////////////////////////////////////////////////////////
 
   //////////////////////////////////////////////////////////////////////////////
@@ -37,17 +37,17 @@
 sol_inline
 Vec3 vec3_init(sol_f x, sol_f y, sol_f z) {
   Vec3 out;
-  #ifdef SOL_SIMD
+  #ifdef SOL_AVX
         #if SOL_F_SIZE >= 64
               out.vec = _mm256_set_pd(x, y, z, 0);
         #else
               out.vec = _mm_set_ps(x, y, z, 0);
-        #endif // SOL_F_SIZE
-  #else
+        #endif
+  #else // NEON has no special set intrinsic:
         out.x = x;
         out.y = y;
         out.z = z;
-  #endif // SOL_SIMD
+  #endif
   return out;
 }
 
@@ -61,7 +61,25 @@ Vec3 vec3_init(sol_f x, sol_f y, sol_f z) {
 
 sol_inline
 Vec3 vec3_initf(sol_f f) {
-  return vec3_init(f, f, f);
+  Vec3 out;
+  #ifdef SOL_AVX
+        #if SOL_F_SIZE >= 64
+              out.vec = _mm256_set1_pd(f);
+        #else
+              out.vec = _mm_set1_ps(f);
+        #endif
+  #elif defined(SOL_NEON)
+        #if SOL_F_SIZE >= 64
+              out.vec = vdupq_n_f64(f);
+        #else
+              out.vec = vdupq_n_f32(f);
+        #endif
+  #else
+        out.x = f;
+        out.y = f;
+        out.z = f;
+  #endif
+  return out;
 }
 
 /// vec3_zero ///
@@ -74,7 +92,7 @@ Vec3 vec3_initf(sol_f f) {
 
 sol_inline
 Vec3 vec3_zero(void) {
-  return vec3_initf((sol_f) 0);
+  return vec3_initf(0);
 }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -179,17 +197,28 @@ sol_f vec3_dot(Vec3 a, Vec3 b) {
 sol_inline
 Vec3 vec3_add(Vec3 a, Vec3 b) {
   Vec3 out;
-  #ifdef SOL_SIMD
+  #ifdef SOL_AVX
         #if SOL_F_SIZE >= 64
               out.vec = _mm256_add_pd(a.vec, b.vec);
         #else
               out.vec = _mm_add_ps(a.vec, b.vec);
-        #endif // SOL_F_SIZE
+        #endif
+  #elif defined(SOL_NEON)
+        #if SOL_F_SIZE >= 64
+              out.vec = vaddq_f64(a.vec, b.vec);
+        #else
+              out.vec = vaddq_f32(a.vec, b.vec);
+        #endif
+  #elif defined(SOL_OMP)
+        #pragma sol_omp
+        for (char i = 0; i < 3; i++) {
+          out.arr[i] = a.arr[i] + b.arr[i];
+        }
   #else
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         out.z = a.z + b.z;
-  #endif // SOL_SIMD
+  #endif
   return out;
 }
 
@@ -219,17 +248,28 @@ Vec3 vec3_addf(Vec3 v, sol_f f) {
 sol_inline
 Vec3 vec3_sub(Vec3 a, Vec3 b) {
   Vec3 out;
-  #ifdef SOL_SIMD
+  #ifdef SOL_AVX
         #if SOL_F_SIZE >= 64
               out.vec = _mm256_sub_pd(a.vec, b.vec);
         #else
               out.vec = _mm_sub_ps(a.vec, b.vec);
-        #endif // SOL_F_SIZE
+        #endif
+  #elif defined(SOL_NEON)
+        #if SOL_F_SIZE >= 64
+              out.vec = vsubq_f64(a.vec, b.vec);
+        #else
+              out.vec = vsubq_f32(a.vec, b.vec);
+        #endif
+  #elif defined(SOL_OMP)
+        #pragma sol_omp
+        for (char i = 0; i < 3; i++) {
+          out.arr[i] = a.arr[i] - b.arr[i];
+        }
   #else
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         out.z = a.z - b.z;
-  #endif // SOL_SIMD
+  #endif
   return out;
 }
 
@@ -273,17 +313,28 @@ Vec3 vec3_fsub(sol_f f, Vec3 v) {
 sol_inline
 Vec3 vec3_mult(Vec3 a, Vec3 b) {
   Vec3 out;
-  #ifdef SOL_SIMD
+  #ifdef SOL_AVX
         #if SOL_F_SIZE >= 64
               out.vec = _mm256_mul_pd(a.vec, b.vec);
         #else
               out.vec = _mm_mul_ps(a.vec, b.vec);
-        #endif // SOL_F_SIZE
+        #endif
+  #elif defined(SOL_NEON)
+        #if SOL_F_SIZE >= 64
+              out.vec = vmulq_f64(a.vec, b.vec);
+        #else
+              out.vec = vmulq_f32(a.vec, b.vec);
+        #endif
+  #elif defined(SOL_OMP)
+        #pragma sol_omp
+        for (char i = 0; i < 3; i++) {
+          out.arr[i] = a.arr[i] * b.arr[i];
+        }
   #else
         out.x = a.x * b.x;
         out.y = a.y * b.y;
         out.z = a.z * b.z;
-  #endif // SOL_SIMD
+  #endif
   return out;
 }
 
@@ -313,17 +364,16 @@ Vec3 vec3_multf(Vec3 v, sol_f f) {
 sol_inline
 Vec3 vec3_div(Vec3 a, Vec3 b) {
   Vec3 out;
-  #ifdef SOL_SIMD
-        #if SOL_F_SIZE >= 64
-              out.vec = _mm256_div_pd(a.vec, b.vec);
-        #else
-              out.vec = _mm_div_ps(a.vec, b.vec);
-        #endif // SOL_F_SIZE
+  #ifdef SOL_OMP
+        #pragma sol_omp
+        for (char i = 0; i < 3; i++) {
+          out.arr[i] = a.arr[i] / b.arr[i];
+        }
   #else
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         out.z = a.z / b.z;
-  #endif // SOL_SIMD
+  #endif
   return out;
 }
 
