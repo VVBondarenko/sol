@@ -92,10 +92,10 @@ statlib:
 	-@ar rc libsol-a.a *.o
 
 install:
-	-@sudo cp -r libsol-a.a /usr/local/lib >/dev/null 2>/dev/null
-	-@sudo cp -r libsol-so.so /usr/local/lib >/dev/null 2>/dev/null
-	-@rm -rf *.o *.exe *.out *.a *.so *.dylib *.dll >/dev/null 2>/dev/null
-	-@sudo cp -r . /usr/local/include/sol >/dev/null 2>/dev/null
+	-@sudo cp -r libsol-a.a /usr/local/lib >/dev/null 2>/dev/null || true
+	-@sudo cp -r libsol-so.so /usr/local/lib >/dev/null 2>/dev/null || true
+	-@rm -rf *.o *.exe *.out *.a *.so *.dylib *.dll >/dev/null 2>/dev/null || true
+	-@sudo cp -r . /usr/local/include/sol >/dev/null 2>/dev/null || true
 
 uninstall:
 	-@sudo rm -rf /usr/local/lib/libsol-a.a >/dev/null 2>/dev/null
