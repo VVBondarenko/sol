@@ -24,7 +24,7 @@ NIMSOURCE=sol.nim
 ARCH=default
 # BITS: default, 64, 32
 BITS=default
-# SIMD: default, auto, omp, avx, neon, disabled
+# SIMD: default, auto, omp, avx2, avx, neon, disabled
 SIMD=default
 # OPT: g, 0, 1, s, 2, 3
 OPT=2
@@ -68,11 +68,14 @@ endif
 ifeq ($(SIMD), omp)
 	CSIMD=-DSOL_OMP
 endif
+ifeq ($(SIMD), avx2)
+	CSIMD=-DSOL_AVX -mavx2
+endif
 ifeq ($(SIMD), avx)
-	CSIMD=-DSOL_AVX
+	CSIMD=-DSOL_AVX -mavx
 endif
 ifeq ($(SIMD), neon)
-	CSIMD=-DSOL_NEON
+	CSIMD=-DSOL_NEON -mfloat-abi=hard -mfpu=neon
 endif
 ifeq ($(SIMD), disabled)
 	CSIMD=-DSOL_NO_SIMD -DSOL_NO_OMP -DSOL_NO_NEON
@@ -83,10 +86,10 @@ endif
 all: build
 
 build:
-	-@$(CC) $(CFLAGS) $(CARCH) $(CBITS) $(CSIMD) -O$(OPT) -c $(CSOURCE) $(LDFLAGS)
+	-@$(CC) $(CFLAGS) $(CARCH) $(CBITS) $(CSIMD) -O$(OPT) -c $(CSOURCE) $(LDFLAGS) $(ARGS)
 
 dylib:
-	-@$(CC) $(CLFAGS) -shared -fPIC -Wl,-soname,libsol-so.so -o libsol-so.so *.o $(LDFLAGS) -lc
+	-@$(CC) $(CLFAGS) -shared -fPIC -Wl,-soname,libsol-so.so -o libsol-so.so *.o $(LDFLAGS) $(ARGS) -lc
 
 statlib:
 	-@ar rc libsol-a.a *.o
