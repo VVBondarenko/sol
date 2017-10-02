@@ -75,7 +75,7 @@ ifeq ($(SIMD), avx)
 	CSIMD=-DSOL_AVX -mavx
 endif
 ifeq ($(SIMD), neon)
-	CSIMD=-DSOL_NEON -mfloat-abi=hard -mfpu=neon
+	CSIMD=-mfloat-abi=hard -mfpu=neon -DSOL_NEON
 endif
 ifeq ($(SIMD), disabled)
 	CSIMD=-DSOL_NO_SIMD -DSOL_NO_OMP -DSOL_NO_NEON
@@ -84,6 +84,9 @@ endif
 # Build Options
 
 all: build
+
+test:
+	-@$(CC) $(CFLAGS) $(CARCH) $(CBITS) $(CSIMD) -O$(OPT) sol_test.c $(CSOURCE) $(LDFLAGS) $(ARGS)
 
 build:
 	-@$(CC) $(CFLAGS) $(CARCH) $(CBITS) $(CSIMD) -O$(OPT) -c $(CSOURCE) $(LDFLAGS) $(ARGS)

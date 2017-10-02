@@ -42,7 +42,7 @@ Vec2 vec2_init(sol_f x, sol_f y) {
         #else
               out.vec = _mm_set_ps(x, y, 0, 0);
         #endif
-  #else // NEON has no special set initialization:
+  #else
         out.x = x;
         out.y = y;
   #endif
@@ -172,8 +172,8 @@ sol_f vec2_cross(Vec2 a, Vec2 b) {
 
 sol_inline
 sol_f vec2_dot(Vec2 a, Vec2 b) {
-  return (a.x * b.x)
-       + (a.y * b.y);
+  const Vec2 out = vec2_mult(a, b);
+  return out.x + out.y;
 }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -438,6 +438,5 @@ Vec2 vec2_avgf(Vec2 v, sol_f f) {
 
 sol_inline
 void vec2_print(Vec2 v) {
-  printf("(%Le, %Le)\n", (long double) v.x,
-                         (long double) v.y);
+  printf("(%e, %e)\n", v.x, v.y);
 }

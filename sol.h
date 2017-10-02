@@ -478,6 +478,7 @@ Vec2 vec2_rot(Vec2 v, sol_f rad);
 sol_f vec2_cross(Vec2 a, Vec2 b);
 sol_f vec2_dot(Vec2 a, Vec2 b);
 
+sol_f vec2_sum(Vec2 a, Vec2 b);
 Vec2 vec2_add(Vec2 a, Vec2 b);
 Vec2 vec2_addf(Vec2 v, sol_f f);
 Vec2 vec2_sub(Vec2 a, Vec2 b);
@@ -509,6 +510,7 @@ Vec3 vec3_rot(Vec3 v, Vec4 q);
 Vec3 vec3_cross(Vec3 a, Vec3 b);
 sol_f vec3_dot(Vec3 a, Vec3 b);
 
+sol_f vec3_sum(Vec3 a, Vec3 b);
 Vec3 vec3_add(Vec3 a, Vec3 b);
 Vec3 vec3_addf(Vec3 v, sol_f f);
 Vec3 vec3_sub(Vec3 a, Vec3 b);
