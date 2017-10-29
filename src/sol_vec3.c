@@ -8,7 +8,7 @@
  // Local Headers /////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-#include "sol.h"
+#include "../sol.h"
 
   //////////////////////////////////////////////////////////////////////////////
  // Standard Headers //////////////////////////////////////////////////////////
@@ -28,22 +28,20 @@
 // Description
 //   Initializes a vector in XYZ order.
 // Arguments
-//   x: float (sol_f)
-//   y: float (sol_f)
-//   z: float (sol_f)
+//   x: scalar (Float)
+//   y: scalar (Float)
+//   z: scalar (Float)
 // Returns
-//   out: vector (Vec3)
+//   vector (Vec3)
 
 sol_inline
-Vec3 vec3_init(sol_f x, sol_f y, sol_f z) {
+Vec3 vec3_init(Float x, Float y, Float z) {
   Vec3 out;
-  #ifdef SOL_AVX
-        #if SOL_F_SIZE >= 64
-              out.vec = _mm256_set_pd(x, y, z, 0);
-        #else
-              out.vec = _mm_set_ps(x, y, z, 0);
-        #endif
-  #else // NEON has no special set intrinsic:
+  #if defined(SOL_AVX_64)
+        out.vec = _mm256_set_pd(x, y, z, 0);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_set_ps(x, y, z, 0);
+  #else
         out.x = x;
         out.y = y;
         out.z = z;
@@ -53,31 +51,25 @@ Vec3 vec3_init(sol_f x, sol_f y, sol_f z) {
 
 /// vec3_initf ///
 // Description
-//   Initializes a vector's XYZ values using a single float.
+//   Initializes a vector's XYZ values using a single scalar.
 // Arguments
-//   f: float (sol_f)
+//   f: scalar (Float)
 // Returns
-//   out: vector (Vec3)
+//   vector (Vec3)
 
 sol_inline
-Vec3 vec3_initf(sol_f f) {
+Vec3 vec3_initf(Float f) {
   Vec3 out;
-  #ifdef SOL_AVX
-        #if SOL_F_SIZE >= 64
-              out.vec = _mm256_set1_pd(f);
-        #else
-              out.vec = _mm_set1_ps(f);
-        #endif
+  #if defined(SOL_AVX_64)
+        out.vec = _mm256_set1_pd(f);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_set1_ps(f);
+  #elif defined(SOL_NEON_64)
+        out.vec = vdupq_n_f64(f);
   #elif defined(SOL_NEON)
-        #if SOL_F_SIZE >= 64
-              out.vec = vdupq_n_f64(f);
-        #else
-              out.vec = vdupq_n_f32(f);
-        #endif
+        out.vec = vdupq_n_f32(f);
   #else
-        out.x = f;
-        out.y = f;
-        out.z = f;
+        out = vec3_init(f, f, f);
   #endif
   return out;
 }
@@ -88,7 +80,7 @@ Vec3 vec3_initf(sol_f f) {
 // Arguments
 //   void
 // Returns
-//   out: vector (Vec3)
+//   vector (Vec3)
 
 sol_inline
 Vec3 vec3_zero(void) {
@@ -105,7 +97,7 @@ Vec3 vec3_zero(void) {
 // Arguments
 //   v: vector (Vec3)
 // Returns
-//   out: vector (Vec3)
+//   vector (Vec3)
 
 sol_inline
 Vec3 vec3_norm(Vec3 v) {
@@ -118,11 +110,11 @@ Vec3 vec3_norm(Vec3 v) {
 // Arguments
 //   v: vector (Vec3)
 // Returns
-//   out: vector (Vec3)
+//   scalar (Float)
 
 sol_inline
-sol_f vec3_mag(Vec3 v) {
-  return sqrt(vec3_dot(v, v));
+Float vec3_mag(Vec3 v) {
+  return sqrtf(vec3_dot(v, v));
 }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -136,13 +128,13 @@ sol_f vec3_mag(Vec3 v) {
 //   v: vector (Vec3)
 //   q: quaternion (Vec4)
 // Returns
-//   out: vector (Vec3)
+//   vector (Vec3)
 
 sol_inline
 Vec3 vec3_rot(Vec3 v, Vec4 q) {
   Vec3 qv = vec3_init(q.x, q.y, q.z);
-  Vec3 t = vec3_multf(vec3_cross(qv, v), 2);
-  return vec3_add(v, vec3_add(vec3_multf(t, q.w), vec3_cross(qv, t)));
+  Vec3 t = vec3_mulf(vec3_cross(qv, v), 2);
+  return vec3_add(v, vec3_add(vec3_mulf(t, q.w), vec3_cross(qv, t)));
 }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -156,7 +148,7 @@ Vec3 vec3_rot(Vec3 v, Vec4 q) {
 //   a: vector (Vec3)
 //   b: vector (Vec3)
 // Returns
-//   out: vector (Vec3)
+//   vector (Vec3)
 
 sol_inline
 Vec3 vec3_cross(Vec3 a, Vec3 b) {
@@ -172,18 +164,29 @@ Vec3 vec3_cross(Vec3 a, Vec3 b) {
 //   a: vector (Vec3)
 //   b: vector (Vec3)
 // Returns
-//   out: vector (Vec3)
+//   vector (Vec3)
 
 sol_inline
-sol_f vec3_dot(Vec3 a, Vec3 b) {
-  return (a.x * b.x)
-       + (a.y * b.y)
-       + (a.z * b.z);
+Float vec3_dot(Vec3 a, Vec3 b) {
+  return vec3_sum(vec3_mul(a, b));
 }
 
   //////////////////////////////////////////////////////////////////////////////
  // Vec3 Basic Math ///////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
+
+/// vec3_sum ///
+// Description
+//   Gets the sum of all of the dimensions of a vector.
+// Arguments
+//   v: vector (Vec3)
+// Returns
+//   scalar (Float)
+
+sol_inline
+Float vec3_sum(Vec3 v) {
+  return v.x + v.y + v.z;
+} 
 
 /// vec3_add ///
 // Description
@@ -192,28 +195,19 @@ sol_f vec3_dot(Vec3 a, Vec3 b) {
 //   a: vector (Vec3)
 //   b: vector (Vec3)
 // Returns
-//   out: vector (Vec3) {a.xyz + b.xyz}
+//   vector (Vec3) {a.xyz + b.xyz}
 
 sol_inline
 Vec3 vec3_add(Vec3 a, Vec3 b) {
   Vec3 out;
-  #ifdef SOL_AVX
-        #if SOL_F_SIZE >= 64
-              out.vec = _mm256_add_pd(a.vec, b.vec);
-        #else
-              out.vec = _mm_add_ps(a.vec, b.vec);
-        #endif
+  #if defined(SOL_AVX_64)
+        out.vec = _mm256_add_pd(a.vec, b.vec);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_add_ps(a.vec, b.vec);
+  #elif defined(SOL_NEON_64)
+        out.vec = vaddq_f64(a.vec, b.vec);
   #elif defined(SOL_NEON)
-        #if SOL_F_SIZE >= 64
-              out.vec = vaddq_f64(a.vec, b.vec);
-        #else
-              out.vec = vaddq_f32(a.vec, b.vec);
-        #endif
-  #elif defined(SOL_OMP)
-        #pragma sol_omp
-        for (char i = 0; i < 3; i++) {
-          out.arr[i] = a.arr[i] + b.arr[i];
-        }
+        out.vec = vaddq_f32(a.vec, b.vec);
   #else
         out.x = a.x + b.x;
         out.y = a.y + b.y;
@@ -224,15 +218,15 @@ Vec3 vec3_add(Vec3 a, Vec3 b) {
 
 /// vec3_addf ///
 // Description
-//   Adds a float to each element of a vector.
+//   Adds a scalar to each element of a vector.
 // Arguments
 //   v: vector (Vec3)
-//   f: float (sol_f)
+//   f: scalar (Float)
 // Returns
-//   out: vector (Vec3) {v.xyz + f}
+//   vector (Vec3) {v.xyz + f}
 
 sol_inline
-Vec3 vec3_addf(Vec3 v, sol_f f) {
+Vec3 vec3_addf(Vec3 v, Float f) {
   return vec3_add(v, vec3_initf(f));
 }
 
@@ -243,28 +237,19 @@ Vec3 vec3_addf(Vec3 v, sol_f f) {
 //   a: vector (Vec3)
 //   b: vector (Vec3)
 // Returns
-//   out: vector (Vec3) {a.xyz - b.xyz}
+//   vector (Vec3) {a.xyz - b.xyz}
 
 sol_inline
 Vec3 vec3_sub(Vec3 a, Vec3 b) {
   Vec3 out;
-  #ifdef SOL_AVX
-        #if SOL_F_SIZE >= 64
-              out.vec = _mm256_sub_pd(a.vec, b.vec);
-        #else
-              out.vec = _mm_sub_ps(a.vec, b.vec);
-        #endif
+  #if defined(SOL_AVX_64)
+        out.vec = _mm256_add_pd(a.vec, b.vec);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_add_ps(a.vec, b.vec);
+  #elif defined(SOL_NEON_64)
+        out.vec = vsubq_f64(a.vec, b.vec);
   #elif defined(SOL_NEON)
-        #if SOL_F_SIZE >= 64
-              out.vec = vsubq_f64(a.vec, b.vec);
-        #else
-              out.vec = vsubq_f32(a.vec, b.vec);
-        #endif
-  #elif defined(SOL_OMP)
-        #pragma sol_omp
-        for (char i = 0; i < 3; i++) {
-          out.arr[i] = a.arr[i] - b.arr[i];
-        }
+        out.vec = vsubq_f32(a.vec, b.vec);
   #else
         out.x = a.x - b.x;
         out.y = a.y - b.y;
@@ -275,61 +260,52 @@ Vec3 vec3_sub(Vec3 a, Vec3 b) {
 
 /// vec3_subf ///
 // Description
-//   Subtracts a float from each element of a vector.
+//   Subtracts a scalar from each element of a vector.
 // Arguments
 //   v: vector (Vec3)
-//   f: float (sol_f)
+//   f: scalar (Float)
 // Returns
 //   out: vector (Vec3) {v.xyz - f}
 
 sol_inline
-Vec3 vec3_subf(Vec3 v, sol_f f) {
+Vec3 vec3_subf(Vec3 v, Float f) {
   return vec3_sub(v, vec3_initf(f));
 }
 
 /// vec3_fsub ///
 // Description
-//   Subtracts each element of a vector from a float.
+//   Subtracts each element of a vector from a scalar.
 // Arguments
-//   f: float (sol-f)
+//   f: scalar (Float)
 //   v: vector (Vec3)
 // Returns
 //   out: vector (Vec3) {f - v.xyz}
 
 sol_inline
-Vec3 vec3_fsub(sol_f f, Vec3 v) {
+Vec3 vec3_fsub(Float f, Vec3 v) {
   return vec3_sub(vec3_initf(f), v);
 }
 
-/// vec3_mult ///
+/// vec3_mul ///
 // Description
 //   Multiplies the elements of two vectors.
 // Arguments
 //   a: vector (Vec3)
 //   b: vector (Vec3)
 // Returns
-//   out: vector (Vec3) {a.xyz * b.xyz}
+//   vector (Vec3) {a.xyz * b.xyz}
 
 sol_inline
-Vec3 vec3_mult(Vec3 a, Vec3 b) {
+Vec3 vec3_mul(Vec3 a, Vec3 b) {
   Vec3 out;
-  #ifdef SOL_AVX
-        #if SOL_F_SIZE >= 64
-              out.vec = _mm256_mul_pd(a.vec, b.vec);
-        #else
-              out.vec = _mm_mul_ps(a.vec, b.vec);
-        #endif
+  #if defined(SOL_AVX_64)
+        out.vec = _mm256_add_pd(a.vec, b.vec);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_add_ps(a.vec, b.vec);
+  #elif defined(SOL_NEON_64)
+        out.vec = vmulq_f64(a.vec, b.vec);
   #elif defined(SOL_NEON)
-        #if SOL_F_SIZE >= 64
-              out.vec = vmulq_f64(a.vec, b.vec);
-        #else
-              out.vec = vmulq_f32(a.vec, b.vec);
-        #endif
-  #elif defined(SOL_OMP)
-        #pragma sol_omp
-        for (char i = 0; i < 3; i++) {
-          out.arr[i] = a.arr[i] * b.arr[i];
-        }
+        out.vec = vmulq_f32(a.vec, b.vec);
   #else
         out.x = a.x * b.x;
         out.y = a.y * b.y;
@@ -338,18 +314,18 @@ Vec3 vec3_mult(Vec3 a, Vec3 b) {
   return out;
 }
 
-/// vec3_multf ///
+/// vec3_mulf ///
 // Description
-//   Multiplies each element of a vector by a float.
+//   Multiplies each element of a vector by a scalar.
 // Arguments
 //   v: vector (Vec3)
-//   f: float (sol_f)
+//   f: scalar (Float)
 // Returns
-//   out: vector (Vec3) {v.xyz * f}
+//   vector (Vec3) {v.xyz * f}
 
 sol_inline
-Vec3 vec3_multf(Vec3 v, sol_f f) {
-  return vec3_mult(v, vec3_initf(f));
+Vec3 vec3_mulf(Vec3 v, Float f) {
+  return vec3_mul(v, vec3_initf(f));
 }
 
 /// vec3_div ///
@@ -359,49 +335,42 @@ Vec3 vec3_multf(Vec3 v, sol_f f) {
 //   a: vector (Vec3)
 //   b: vector (Vec3)
 // Returns
-//   out: vector (Vec3) {a.xyz / b.xyz}
+//   vector (Vec3) {a.xyz / b.xyz}
 
 sol_inline
 Vec3 vec3_div(Vec3 a, Vec3 b) {
   Vec3 out;
-  #ifdef SOL_OMP
-        #pragma sol_omp
-        for (char i = 0; i < 3; i++) {
-          out.arr[i] = a.arr[i] / b.arr[i];
-        }
-  #else
-        out.x = a.x / b.x;
-        out.y = a.y / b.y;
-        out.z = a.z / b.z;
-  #endif
+  out.x = a.x / b.x;
+  out.y = a.y / b.y;
+  out.z = a.z / b.z;
   return out;
 }
 
 /// vec3_divf ///
 // Description
-//   Divide each element of a vector by a float.
+//   Divide each element of a vector by a scalar.
 // Arguments
 //   v: vector (Vec3)
-//   f: float (sol_f)
+//   f: scalar (Float)
 // Returns
-//   out: vector (Vec3) {v.xyz / f}
+//   vector (Vec3) {v.xyz / f}
 
 sol_inline
-Vec3 vec3_divf(Vec3 v, sol_f f) {
+Vec3 vec3_divf(Vec3 v, Float f) {
   return vec3_div(v, vec3_initf(f));
 }
 
 /// vec3_fdiv ///
 // Description
-//   Divide a float by each element of a vector.
+//   Divide a scalar by each element of a vector.
 // Arguments
-//   f: float (sol_f)
+//   f: scalar (Float)
 //   v: vector (Vec3)
 // Returns
-//   out: vector (Vec3) {f / v.xyz}
+//   vector (Vec3) {f / v.xyz}
 
 sol_inline
-Vec3 vec3_fdiv(sol_f f, Vec3 v) {
+Vec3 vec3_fdiv(Float f, Vec3 v) {
   return vec3_div(vec3_initf(f), v);
 }
 
@@ -424,12 +393,12 @@ Vec3 vec3_avg(Vec3 a, Vec3 b) {
 //   Average each element of a vector with a float.
 // Arguments
 //   v: vector (Vec3)
-//   f: float (sol_f)
+//   f: scalar (Float)
 // Returns
 //   out: vector (Vec3) {(v.xyz + f) / 2}
 
 sol_inline
-Vec3 vec3_avgf(Vec3 v, sol_f f) {
+Vec3 vec3_avgf(Vec3 v, Float f) {
   return vec3_avg(v, vec3_initf(f));
 }
 
@@ -447,7 +416,11 @@ Vec3 vec3_avgf(Vec3 v, sol_f f) {
 
 sol_inline
 void vec3_print(Vec3 v) {
-  printf("(%Le, %Le, %Le)\n", (long double) v.x,
-                              (long double) v.y,
-                              (long double) v.z);
+  #if SOL_F_SIZE > 64
+        printf("(%Le, %Le, %Le)\n", v.x, v.y, v.z);
+  #elif SOL_F_SIZE > 32
+        printf("(%e, %e, %e)\n", v.x, v.y, v.z);
+  #else
+        printf("(%f, %f, %f)\n", v.x, v.y, v.z);
+  #endif
 }

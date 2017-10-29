@@ -8,7 +8,7 @@
  // Local Headers /////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-#include "sol.h"
+#include "../sol.h"
 
   //////////////////////////////////////////////////////////////////////////////
  // Standard Headers //////////////////////////////////////////////////////////
@@ -28,20 +28,18 @@
 // Description
 //   Initializes a vector in XY order.
 // Arguments
-//   x: float (sol_f)
-//   y: float (sol_f)
+//   x: dimension (Float)
+//   y: dimension (Float)
 // Returns
-//   out: vector (Vec2)
+//   vector (Vec2)
 
 sol_inline
-Vec2 vec2_init(sol_f x, sol_f y) {
+Vec2 vec2_init(Float x, Float y) {
   Vec2 out;
-  #ifdef SOL_AVX
-        #if SOL_F_SIZE >= 64
-              out.vec = _mm_set_pd(x, y);
-        #else
-              out.vec = _mm_set_ps(x, y, 0, 0);
-        #endif
+  #if defined(SOL_AVX_64)
+        out.vec = _mm_set_pd(x, y);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_set_ps(x, y, 0, 0);
   #else
         out.x = x;
         out.y = y;
@@ -53,29 +51,25 @@ Vec2 vec2_init(sol_f x, sol_f y) {
 // Description
 //   Initializes a vector's XY values using a single float.
 // Arguments
-//   x: float (sol_f)
-//   y: float (sol_f)
+//   f: scalar (Float)
 // Returns
-//   out: vector (Vec2)
+//   vector (Vec2)
 
 sol_inline
-Vec2 vec2_initf(sol_f f) {
+Vec2 vec2_initf(Float f) {
   Vec2 out;
-  #ifdef SOL_AVX
-        #if SOL_F_SIZE >= 64
-              out.vec = _mm_set1_pd(f);
-        #else
-              out.vec = _mm_set1_ps(f);
-        #endif
+  #if defined(SOL_AVX_64)
+        out.vec = _mm_set1_pd(f);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_set1_ps(f);
+  #elif defined(SOL_NEON_64)
+        out.vec = vdup_n_f64(f);
   #elif defined(SOL_NEON)
-        #if SOL_F_SIZE >= 64
-              out.vec = vdup_n_f64(f); 
-        #else
-              out.vec = vdup_n_f32(f);
-        #endif
+        out.vec = vdup_n_f32(f);
   #else
-        return vec2_init(f, f);
+        out = vec2_init(f, f);
   #endif
+  return out;
 }
 
 /// vec2_zero ///
@@ -84,7 +78,7 @@ Vec2 vec2_initf(sol_f f) {
 // Arguments
 //   void
 // Returns
-//   out: vector (Vec2)
+//   vector (Vec2)
 
 sol_inline
 Vec2 vec2_zero(void) {
@@ -101,7 +95,7 @@ Vec2 vec2_zero(void) {
 // Arguments
 //   v: vector (Vec2)
 // Returns
-//   out: vector (Vec2)
+//   vector (Vec2)
 
 sol_inline
 Vec2 vec2_norm(Vec2 v) {
@@ -114,10 +108,10 @@ Vec2 vec2_norm(Vec2 v) {
 // Arguments
 //   v: vector (Vec2)
 // Returns
-//   out: float (sol_f)
+//   scalar (Float)
 
 sol_inline
-sol_f vec2_mag(Vec2 v) {
+Float vec2_mag(Vec2 v) {
   return sqrt(vec2_dot(v, v));
 }
 
@@ -130,14 +124,14 @@ sol_f vec2_mag(Vec2 v) {
 //   Rotate a 2D vector counterclockwise in radians.
 // Arguments
 //   v: vector (Vec2)
-//   rad: float (sol_f)
+//   rad: radians (Float)
 // Returns
 //   out: vector (Vec2)
 
 sol_inline
-Vec2 vec2_rot(Vec2 v, sol_f rad) {
-  sol_f cs = cos(rad);
-  sol_f sn = sin(rad);
+Vec2 vec2_rot(Vec2 v, Float rad) {
+  Float cs = cos(rad);
+  Float sn = sin(rad);
   return vec2_init((v.x * cs) - (v.y * sn),
                    (v.x * sn) + (v.y * cs));
 }
@@ -153,10 +147,10 @@ Vec2 vec2_rot(Vec2 v, sol_f rad) {
 //   a: vector (Vec2)
 //   b: vector (Vec2)
 // Returns
-//   out: float (sol_f)
+//   scalar (Float)
 
 sol_inline
-sol_f vec2_cross(Vec2 a, Vec2 b) {
+Float vec2_cross(Vec2 a, Vec2 b) {
   return (a.x * b.y)
        - (b.x * a.y);
 }
@@ -168,17 +162,30 @@ sol_f vec2_cross(Vec2 a, Vec2 b) {
 //   a: vector (Vec2)
 //   b: vector (Vec2)
 // Returns
-//   out: vector (Vec2)
+//   scalar (Float)
 
 sol_inline
-sol_f vec2_dot(Vec2 a, Vec2 b) {
-  const Vec2 out = vec2_mult(a, b);
+Float vec2_dot(Vec2 a, Vec2 b) {
+  const Vec2 out = vec2_mul(a, b);
   return out.x + out.y;
 }
 
   //////////////////////////////////////////////////////////////////////////////
  // Vec2 Basic Math ///////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
+
+/// vec2_sum ///
+// Description
+//   Gets the sum of all of the dimensions of a vector.
+// Arguments
+//   v: vector (Vec2)
+// Returns
+//   scalar (Float) {sum a.xy}
+
+sol_inline
+Float vec2_sum(Vec2 v) {
+  return v.x + v.y;
+}
 
 /// vec2_add ///
 // Description
@@ -187,28 +194,19 @@ sol_f vec2_dot(Vec2 a, Vec2 b) {
 //   a: vector (Vec2)
 //   b: vector (Vec2)
 // Returns
-//   out: vector (Vec2) {a.xy + b.xy}
+//   vector (Vec2) {a.xy + b.xy}
 
 sol_inline
 Vec2 vec2_add(Vec2 a, Vec2 b) {
   Vec2 out;
-  #ifdef SOL_AVX
-        #if SOL_F_SIZE >= 64
-              out.vec = _mm_add_pd(a.vec, b.vec);
-        #else
-              out.vec = _mm_add_ps(a.vec, b.vec);
-        #endif
+  #if defined(SOL_AVX_64)
+        out.vec = _mm_add_pd(a.vec, b.vec);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_add_ps(a.vec, b.vec);
+  #elif defined(SOL_NEON_64)
+        out.vec = vadd_f64(a.vec, b.vec);
   #elif defined(SOL_NEON)
-        #if SOL_F_SIZE >= 64
-              out.vec = vadd_f64(a.vec, b.vec);
-        #else
-              out.vec = vadd_f32(a.vec, b.vec);
-        #endif
-  #elif defined(SOL_OMP)
-        #pragma sol_omp
-        for (char i = 0; i < 2; i++) {
-          out.arr[i] = a.arr[i] + b.arr[i];
-        }
+        out.vec = vadd_f32(a.vec, b.vec);
   #else
         out.x = a.x + b.x;
         out.y = a.y + b.y;
@@ -221,12 +219,12 @@ Vec2 vec2_add(Vec2 a, Vec2 b) {
 //   Adds a float to each element of a vector.
 // Arguments
 //   v: vector (Vec2)
-//   f: float (sol_f)
+//   f: scalar (Float)
 // Returns
-//   out: vector (Vec2) {v.xyz + f}
+//   vector (Vec2) {v.xyz + f}
 
 sol_inline
-Vec2 vec2_addf(Vec2 v, sol_f f) {
+Vec2 vec2_addf(Vec2 v, Float f) {
   return vec2_add(v, vec2_initf(f));
 }
 
@@ -237,46 +235,37 @@ Vec2 vec2_addf(Vec2 v, sol_f f) {
 //   a: vector (Vec2)
 //   b: vector (Vec2)
 // Returns
-//   out: vector (Vec2) {a.xyz - b.xyz}
+//   vector (Vec2) {a.xyz - b.xyz}
 
 sol_inline
 Vec2 vec2_sub(Vec2 a, Vec2 b) {
   Vec2 out;
-  #ifdef SOL_AVX
-        #if SOL_F_SIZE >= 64
-              out.vec = _mm_sub_pd(a.vec, b.vec);
-        #else
-              out.vec = _mm_sub_ps(a.vec, b.vec);
-        #endif
+  #if defined(SOL_AVX_64)
+        out.vec = _mm_sub_pd(a.vec, b.vec);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_sub_ps(a.vec, b.vec);
+  #elif defined(SOL_NEON_64)
+        out.vec = vsub_f64(a.vec, b.vec);
   #elif defined(SOL_NEON)
-        #if SOL_F_SIZE >= 64
-              out.vec = vsub_f64(a.vec, b.vec);
-        #else
-              out.vec = vsub_f32(a.vec, b.vec);
-        #endif
-  #elif defined(SOL_OMP)
-        #pragma sol_omp
-        for (char i = 0; i < 2; i++) {
-          out.arr[i] = a.arr[i] - b.arr[i];
-        }
+        out.vec = vsub_f32(a.vec, b.vec);
   #else
         out.x = a.x - b.x;
-        out.y = a.y - b.y;
+        out.y = a.y - b.y;      
   #endif
   return out;
 }
 
 /// vec2_subf ///
 // Description
-//   Subtracts a float from each element of a vector.
+//   Subtracts a scalar from each element of a vector.
 // Arguments
 //   v: vector (Vec2)
-//   f: float (sol_f)
+//   f: scalar (Float)
 // Returns
-//   out: vector (Vec2) {v.xyz - f}
+//   vector (Vec2) {v.xyz - f}
 
 sol_inline
-Vec2 vec2_subf(Vec2 v, sol_f f) {
+Vec2 vec2_subf(Vec2 v, Float f) {
   return vec2_sub(v, vec2_initf(f));
 }
 
@@ -287,42 +276,33 @@ Vec2 vec2_subf(Vec2 v, sol_f f) {
 //   f: float (sol_f)
 //   v: vector (Vec2)
 // Returns
-//   out: vector (Vec2) {f - v.xyz}
+//   vector (Vec2) {f - v.xyz}
 
 sol_inline
-Vec2 vec2_fsub(sol_f f, Vec2 v) {
+Vec2 vec2_fsub(Float f, Vec2 v) {
   return vec2_sub(vec2_initf(f), v);
 }
 
-/// vec2_mult ///
+/// vec2_mul ///
 // Description
 //   Multiplies the elements of two vectors.
 // Arguments
 //   a: vector (Vec2)
 //   b: vector (Vec2)
 // Returns
-//   out: vector (Vec2) {a.xyz * b.xyz}
+//   vector (Vec2) {a.xyz * b.xyz}
 
 sol_inline
-Vec2 vec2_mult(Vec2 a, Vec2 b) {
+Vec2 vec2_mul(Vec2 a, Vec2 b) {
   Vec2 out;
-  #ifdef SOL_AVX
-        #if SOL_F_SIZE >= 64
-              out.vec = _mm_mul_pd(a.vec, b.vec);
-        #else
-              out.vec = _mm_mul_ps(a.vec, b.vec);
-        #endif
+  #if defined(SOL_AVX_64)
+        out.vec = _mm_mul_pd(a.vec, b.vec);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_mul_ps(a.vec, b.vec);
+  #elif defined(SOL_NEON_64)
+        out.vec = vmul_f64(a.vec, b.vec);
   #elif defined(SOL_NEON)
-        #if SOL_F_SIZE >= 64
-              out.vec = vsub_f64(a.vec, b.vec);
-        #else
-              out.vec = vsub_f32(a.vec, b.vec);
-        #endif
-  #elif defined(SOL_OMP)
-        #pragma sol_omp
-        for (char i = 0; i < 2; i++) {
-          out.arr[i] = a.arr[i] * b.arr[i];
-        }
+        out.vec = vmul_f32(a.vec, b.vec);
   #else
         out.x = a.x * b.x;
         out.y = a.y * b.y;
@@ -335,13 +315,13 @@ Vec2 vec2_mult(Vec2 a, Vec2 b) {
 //   Multiplies each element of a vector by a float.
 // Arguments
 //   v: vector (Vec2)
-//   f: float (sol_f)
+//   f: scalar (Float)
 // Returns
-//   out: vector (Vec2) {v.xyz * f}
+//   vector (Vec2) {v.xyz * f}
 
 sol_inline
-Vec2 vec2_multf(Vec2 v, sol_f f) {
-  return vec2_mult(v, vec2_initf(f));
+Vec2 vec2_mulf(Vec2 v, Float f) {
+  return vec2_mul(v, vec2_initf(f));
 }
 
 /// vec2_div ///
@@ -351,20 +331,13 @@ Vec2 vec2_multf(Vec2 v, sol_f f) {
 //   a: vector (Vec2)
 //   b: vector (Vec2)
 // Returns
-//   out: vector (Vec2) {a.xyz / b.xyz}
+//   vector (Vec2) {a.xyz / b.xyz}
 
 sol_inline
 Vec2 vec2_div(Vec2 a, Vec2 b) {
   Vec2 out;
-  #ifdef SOL_OMP
-        #pragma sol_omp
-        for (char i = 0; i < 2; i++) {
-          out.arr[i] = a.arr[i] / b.arr[i];
-        }
-  #else
-        out.x = a.x / b.x;
-        out.y = a.y / b.y;
-  #endif
+  out.x = a.x / b.x;
+  out.y = a.y / b.y;
   return out;
 }
 
@@ -373,12 +346,12 @@ Vec2 vec2_div(Vec2 a, Vec2 b) {
 //   Divide the elements of a vector by a float.
 // Arguments
 //   v: vector (Vec2)
-//   f: float (sol_f)
+//   f: scalar (Float)
 // Returns
-//   out: vector (Vec2) {v.xyz / f}
+//   vector (Vec2) {v.xyz / f}
 
 sol_inline
-Vec2 vec2_divf(Vec2 v, sol_f f) {
+Vec2 vec2_divf(Vec2 v, Float f) {
   return vec2_div(v, vec2_initf(f));
 }
 
@@ -386,13 +359,13 @@ Vec2 vec2_divf(Vec2 v, sol_f f) {
 // Description
 //   Divide a float by each element of a vector.
 // Arguments
-//   f: float (sol_f)
+//   f: scalar (Float)
 //   v: vector (Vec2)
 // Returns
-//   out: vector (Vec2) {f / v.xyz}
+//   vector (Vec2) {f / v.xyz}
 
 sol_inline
-Vec2 vec2_fdiv(sol_f f, Vec2 v) {
+Vec2 vec2_fdiv(Float f, Vec2 v) {
   return vec2_div(vec2_initf(f), v);
 }
 
@@ -403,7 +376,7 @@ Vec2 vec2_fdiv(sol_f f, Vec2 v) {
 //   a: vector (Vec2)
 //   b: vector (Vec2)
 // Returns
-//   out: vector (Vec2) {(a.xyz + b.xyz) / 2}
+//   vector (Vec2) {(a.xyz + b.xyz) / 2}
 
 sol_inline
 Vec2 vec2_avg(Vec2 a, Vec2 b) {
@@ -415,12 +388,12 @@ Vec2 vec2_avg(Vec2 a, Vec2 b) {
 //   Average each element of a vector with a float.
 // Arguments
 //   v: vector (Vec2)
-//   f: float (sol_f)
+//   f: scalar (Float)
 // Returns
-//   out: vector (Vec2) {(v.xyz + f) / 2}
+//   vector (Vec2) {(v.xyz + f) / 2}
 
 sol_inline
-Vec2 vec2_avgf(Vec2 v, sol_f f) {
+Vec2 vec2_avgf(Vec2 v, Float f) {
   return vec2_avg(v, vec2_initf(f));
 }
 
@@ -438,5 +411,11 @@ Vec2 vec2_avgf(Vec2 v, sol_f f) {
 
 sol_inline
 void vec2_print(Vec2 v) {
-  printf("(%e, %e)\n", v.x, v.y);
+  #if SOL_F_SIZE > 64
+        printf("(%Le, %Le)\n", v.x, v.y);
+  #elif SOL_F_SIZE > 32
+        printf("(%e, %e)\n", v.x, v.y);
+  #else
+        printf("(%f, %f)\n", v.x, v.y);
+  #endif
 }

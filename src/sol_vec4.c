@@ -8,7 +8,7 @@
  // Local Headers /////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-#include "sol.h"
+#include "../sol.h"
 
   //////////////////////////////////////////////////////////////////////////////
  // Standard Headers //////////////////////////////////////////////////////////
@@ -28,23 +28,21 @@
 // Description
 //   Initializes a quaternion in XYZW order.
 // Arguments
-//   x: float (sol_f)
-//   y: float (sol_f)
-//   z: float (sol_f)
-//   w: float (sol_f)
+//   x: dimension (Float)
+//   y: dimension (Float)
+//   z: dimension (Float)
+//   w: dimension (Float)
 // Returns
-//   out: quaternion (Vec4)
+//   quaternion (Vec4)
 
 sol_inline
-Vec4 vec4_init(sol_f x, sol_f y, sol_f z, sol_f w) {
+Vec4 vec4_init(Float x, Float y, Float z, Float w) {
   Vec4 out;
-  #ifdef SOL_AVX
-        #if SOL_F_SIZE >= 64
-              out.vec = _mm256_set_pd(x, y, z, w);
-        #else
-              out.vec = _mm_set_ps(x, y, z, w);
-        #endif
-  #else // NEON has no special set intrinsic:
+  #if defined(SOL_AVX_64)
+        out.vec = _mm256_set_pd(x, y, z, w);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_set_ps(x, y, z, w);
+  #else
         out.x = x;
         out.y = y;
         out.z = z;
@@ -57,30 +55,23 @@ Vec4 vec4_init(sol_f x, sol_f y, sol_f z, sol_f w) {
 // Description
 //   Initializes a quaternion's XYZW values using a single float.
 // Arguments
-//   f: float (sol_f)
+//   f: scalar (Float)
 // Returns
-//   out: quaternion (Vec4)
+//   quaternion (Vec4)
 
 sol_inline
-Vec4 vec4_initf(sol_f f) {
+Vec4 vec4_initf(Float f) {
   Vec4 out;
-  #ifdef SOL_AVX
-        #if SOL_F_SIZE >= 64
-              out.vec = _mm256_set1_pd(f);
-        #else
-              out.vec = _mm_set_ps(f);
-        #endif
+  #if defined(SOL_AVX_64)
+        out.vec = _mm256_set1_pd(f);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_set1_ps(f);
+  #elif defined(SOL_NEON_64)
+        out.vec = vdupq_n_f64(f);
   #elif defined(SOL_NEON)
-        #if SOL_F_SIZE >= 64
-              out.vec = vdupq_n_f64(f);
-        #else
-              out.vec = vdupq_n_f32(f);
-        #endif
+        out.vec = vdupq_n_f32(f);
   #else
-        out.x = f;
-        out.y = f;
-        out.z = f;
-        out.w = f;
+        out = vec4_init(f, f, f, f);
   #endif
   return out;
 }
@@ -91,7 +82,7 @@ Vec4 vec4_initf(sol_f f) {
 // Arguments
 //   void
 // Returns
-//   out: quaternion (Vec4)
+//   quaternion (Vec4)
 
 sol_inline
 Vec4 vec4_zero(void) {
@@ -112,7 +103,7 @@ Vec4 vec4_zero(void) {
 
 sol_inline
 Vec4 vec4_norm(Vec4 q) {
-  sol_f m = vec4_mag(q);
+  const Float m = vec4_mag(q);
   return vec4_init(q.x / m,
                    q.y / m,
                    q.z / m,
@@ -125,14 +116,14 @@ Vec4 vec4_norm(Vec4 q) {
 // Arguments
 //   q: quaternion (Vec4)
 // Returns
-//   out: float (sol_f)
+//   out: scalar (Float)
 
 sol_inline
-sol_f vec4_mag(Vec4 q) {
-  return sqrt((q.x * q.x)
-            + (q.y * q.y)
-            + (q.z * q.z)
-            + (q.w * q.w));
+Float vec4_mag(Vec4 q) {
+  return sqrtf((q.x * q.x)
+             + (q.y * q.y)
+             + (q.z * q.z)
+             + (q.w * q.w));
 }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -149,8 +140,11 @@ sol_f vec4_mag(Vec4 q) {
 
 sol_inline
 void vec4_print(Vec4 q) {
-  printf("(%Le, %Le, %Le, %Le)\n", (long double) q.x,
-                                   (long double) q.y,
-                                   (long double) q.z,
-                                   (long double) q.w);
+  #if SOL_F_SIZE > 64
+        printf("(%Le, %Le, %Le, %Le)\n", q.x, q.y, q.z, q.w);
+  #elif SOL_F_SIZE > 32
+        printf("(%e, %e, %e, %e)\n", q.x, q.y, q.z, q.w);
+  #else
+        printf("(%f, %f, %f, %f)\n", q.x, q.y, q.z, q.w);
+  #endif
 }

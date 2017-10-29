@@ -8,10 +8,14 @@
 # Compiler Configuration #######################################################
 ################################################################################
 
-{.emit: """
-#define SOL_F_SIZE 64
-#define SOL_NO_FAM
-""".}
+{.emit:
+"""
+   #define SOL_F_SIZE 32
+   #define SOL_NO_FAM
+   #define SOL_INLINE
+   #define SOL_SIMD
+"""
+.}
 
 {.passc:"-I.".}
 {.passl:"-lm".}
@@ -20,7 +24,7 @@
 # Type Definitions #############################################################
 ################################################################################
 
-type sol_f = cdouble
+type sol_f = cfloat
 
 type Vec2* {.importc: "Vec2", header: "sol.h".} = object
     x*, y*: sol_f
@@ -38,34 +42,18 @@ type Seg3* {.importc: "Seg3", header: "sol.h".} = object
     orig*, dest*: Vec3
 
 type Box2* {.importc: "Box2", header: "sol.h".} = object
-    min*, max*: Vec2
+    lower*, upper*: Vec2
 
 type Box3* {.importc: "Box3", header: "sol.h".} = object
-    min*, max*: Vec3
+    lower*, upper*: Vec3
 
 type Sph2* {.importc: "Sph2", header: "so.h".} = object
     pos*: Vec2
-    radius*: sol_f
+    rad*: sol_f
 
 type Sph3* {.importc: "Sph3", header: "sol.h".} = object
     pos*: Vec3
-    radius*: sol_f
-
-type Lnk2* {.importc: "Lnk2", header: "sol.h".} = object
-    pos*: Vec2
-    next*: cuint
-
-type Lnk3* {.importc: "Lnk3", header: "sol.h".} = object
-    pos*: Vec3
-    next*: cuint
-
-type Mod2* {.importc: "Mod2", header: "sol.h".} = object
-    size*: cuint
-    link*: ptr Lnk2
-
-type Mod3* {.importc: "Mod3", header: "sol.h".} = object
-    size*: cuint
-    link*: ptr Lnk3
+    rad*: sol_f
 
 ################################################################################
 # Vec2 Functions ###############################################################

@@ -4,9 +4,9 @@
 int main() {
   Vec2 out = vec2_init(1, 2);
   while(1) {
-    out = vec2_multf(out, 1.10);
+    out = vec2_mulf(out, 1.10);
     vec2_print(out);
-    if (out.x > ) { break; }
+    if (out.x > 999) { break; }
   }
   return 0;
 }
