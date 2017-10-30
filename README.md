@@ -67,11 +67,9 @@ Vec3 vec3_add(Vec3 a, Vec3 b) {
 
 * 3D Boxes (`Box3`)
 
-* 2D Spheres* (`Sph2`)
+* 2D Spheres* (`Sph2`) [Better known as circles, but muh consistency.]
 
 * 3D Spheres (`Sph3`)
-
- * Better known as "Circles", but muh consistency.
 
 # Examples
 Here are some basic examples for C and Nim, using Sol bundled into the current directory.
