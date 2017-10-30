@@ -1,67 +1,70 @@
 # Sol
-Sol is an experimental vector library written in C. It implements SIMD-accelerated math and uses quaternions for vector rotation to be efficient.
+## A vector library written in pure C.
+Sol is a fast, maintainable, and portable vector library written in C.
 
-# Notice
-Sol is not intended to be production-ready code. It is just a hobbyist project. If you use Sol in a large project, be aware that you will have to take responsibility for any bugs that it may have.
+Nim bindings are provided "out of the box" for those who don't want to deal with C's memory management or lack of high level features, but still want to enjoy the speed benefits Sol provides.
+
+## Disclaimer
+This is a hobbyist project. Please don't use this for production-level code until further notice.
+
+# Goals
+## Speed *(Why C?)*
+C is well-known for being a "fast" language, not because the language spec itself somehow makes it fast, but because the cost of low-level operations is well-displayed to the programmer and because of compiler maturity and ready availability of intrinsics without any sort of linking overhead.
+
+For these reasons, C was chosen.
+
+## Maintainability *(Why not C++?)*
+Although it may seem antithetical to call C maintainable, C's lack of high level features to distract from optimization help avoid data-hiding antipatterns which are common in OOP code; using a higher-level language invites use of these antipatterns.
+
+Instead of Sol's functions being interfaces for a class, they are just more streamlined and efficient SIMD-optimized versions of what the end programmer wants-- the way a library should be.
+
+## Portability *(Aren't intrinsics, well, platform intrinsic?)*
+By using the target platform macros available in most modern C compilers, it is possible to discern wether or not the target platform supports a given intrinsic, and adjust the generated code accordingly. 
+
+Thanks to this, Sol can be made to use only standard C or to automatically adapt to the target platform.
+
+## Ease of Contribution
+Commentation is done before each function to help improve the readability of the library to newcomers. An example of this is shown below.
+
+```
+/// vec3_add ///
+// Description
+//   Adds the elements of two vectors.
+// Arguments
+//   a: vector (Vec3)
+//   b: vector (Vec3)
+// Returns
+//   vector (Vec3) {a.xyz + b.xyz}
+
+sol_inline
+Vec3 vec3_add(Vec3 a, Vec3 b) {
+  // etc.
+}
+```
 
 # Examples
-
+Here are some basic examples for C and Nim, using Sol bundled into the current directory.
+## C
 ```C
-// C Example
-#include <sol/sol.h>
+#include "sol/sol.h"
 
-int main(int argc, char **argv) {
-  Vec2 a = vec2_init(0, 1, 2);
-  Vec2 b = vec2_init(2, 1, 0);
-  Vec2 c = vec2_cross(a, b);
-  vec2_print(c);
+int main() {
+  Vec3 a = vec3_init(0, 1, 2);
+  Vec3 b = vec3_init(2, 1, 0);
+  Vec3 c = vec3_cross(a, b);
+  vec3_print(c);
   return 0;
 }
 ```
+## Nim
+```Nim
+import sol/sol
+
+var a = vec3_init(0, 1, 2)
+var b = vec3_init(2, 1, 0)
+var c = vec3_cross(a, b)
+vec3_print(c)
+```
 
 # Installation
-Installing Sol will add the source code to your `/usr/local/include` directory and the static and dynamic libraries (`libsol-a.a` and `libsol-so.so`) built via gcc to your `/usr/local/lib` directory.
-
-Note that this is optional-- you could just bundle Sol into your application.
-
-```Bash
-git clone https://github.com/TeamEpoch/sol
-cd sol
-make build ARGS=-02 # The ARGS variable passes command line arguments to cc.
-make install
-```
-
-Side tip: You can use the "-D" option to pass macros to the compiler via the `ARGS` variable exposed by the Makefile, so you could enable features like `SOL_SIMD` as you please. Such optimizations could lead to huge performance gains if your target platform supports them.
-
-# Library Usage
-Suppose we've installed Sol and have the following code:
-
-```C
-// test.c
-#include <sol/sol.h>
-
-int main() {
-  Vec2 a = vec2_init(0, 5);
-  vec2_print(a);
-}
-```
-
-To compile this with the static Sol library:
-
-```Bash
-cc test.c -lsol-a -L/usr/local/lib -lm
-```
-
-To compile it with the dynamic Sol library:
-
-```Bash
-cc test.c -lsol-so -L/usr/local/lib
-```
-
-Note that to run the dynamic version you must do:
-
-```Bash
-export LD_LIBRARY_PATH=/usr/local/lib
-```
-
-before runtime.
+To be added at a later date. Just a few tweaks to the Makefile and it should be possible soon.
