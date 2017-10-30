@@ -67,7 +67,7 @@ Vec3 vec3_add(Vec3 a, Vec3 b) {
 
 * 3D Boxes (`Box3`)
 
-* 2D Spheres* (`Sph2`) [Better known as circles, but muh consistency.]
+* 2D Spheres (`Sph2`) [Better known as circles, but muh consistency.]
 
 * 3D Spheres (`Sph3`)
 
