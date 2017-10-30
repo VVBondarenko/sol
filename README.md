@@ -26,7 +26,7 @@ Thanks to this, Sol can be made to use only standard C or to automatically adapt
 ## Ease of Contribution
 Commentation is done before each function to help improve the readability of the library to newcomers. An example of this is shown below.
 
-```
+```C
 /// vec3_add ///
 // Description
 //   Adds the elements of two vectors.
