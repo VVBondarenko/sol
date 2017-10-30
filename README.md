@@ -42,6 +42,37 @@ Vec3 vec3_add(Vec3 a, Vec3 b) {
 }
 ```
 
+# Features
+## Implemented
+2D Vectors (`Vec2`)
+
+3D Vectors (`Vec3`)
+
+4D Vectors (`Vec4`)
+
+## Planned
+2D Lines (`Lin2`)
+
+3D Lines (`Lin3`)
+
+2D Rays (`Ray2`)
+
+3D Rays (`Ray3`)
+
+2D Segments (`Seg2`)
+
+3D Segments (`Seg3`)
+
+2D Boxes (`Box2`)
+
+3D Boxes (`Box3`)
+
+2D Spheres* (`Sph2`)
+
+3D Spheres (`Sph3`)
+
+* Better known as "Circles", but muh consistency.
+
 # Examples
 Here are some basic examples for C and Nim, using Sol bundled into the current directory.
 ## C
@@ -65,6 +96,3 @@ var b = vec3_init(2, 1, 0)
 var c = vec3_cross(a, b)
 vec3_print(c)
 ```
-
-# Installation
-To be added at a later date. Just a few tweaks to the Makefile and it should be possible soon.
