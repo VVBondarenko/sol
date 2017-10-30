@@ -44,34 +44,34 @@ Vec3 vec3_add(Vec3 a, Vec3 b) {
 
 # Features
 ## Implemented
-2D Vectors (`Vec2`)
+* 2D Vectors (`Vec2`)
 
-3D Vectors (`Vec3`)
+* 3D Vectors (`Vec3`)
 
-4D Vectors (`Vec4`)
+* 4D Vectors (`Vec4`)
 
 ## Planned
-2D Lines (`Lin2`)
+* 2D Lines (`Lin2`)
 
-3D Lines (`Lin3`)
+* 3D Lines (`Lin3`)
 
-2D Rays (`Ray2`)
+* 2D Rays (`Ray2`)
 
-3D Rays (`Ray3`)
+* 3D Rays (`Ray3`)
 
-2D Segments (`Seg2`)
+* 2D Segments (`Seg2`)
 
-3D Segments (`Seg3`)
+* 3D Segments (`Seg3`)
 
-2D Boxes (`Box2`)
+* 2D Boxes (`Box2`)
 
-3D Boxes (`Box3`)
+* 3D Boxes (`Box3`)
 
-2D Spheres* (`Sph2`)
+* 2D Spheres* (`Sph2`)
 
-3D Spheres (`Sph3`)
+* 3D Spheres (`Sph3`)
 
-* Better known as "Circles", but muh consistency.
+ * Better known as "Circles", but muh consistency.
 
 # Examples
 Here are some basic examples for C and Nim, using Sol bundled into the current directory.
