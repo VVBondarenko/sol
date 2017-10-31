@@ -198,7 +198,7 @@ typedef struct {
 //   z: dimension (sol_F)
 //   dim: dimensions (Float[3])
 
-typedef struct {
+typedef struct type_vec3 {
   union { 
     struct {
       Float x, y, z;
