@@ -23,7 +23,7 @@ By using the target platform macros available in most modern C compilers, it is 
 
 Thanks to this, Sol can be made to use only standard C or to automatically adapt to the target platform.
 
-## Ease of Contribution
+## Ease of Contribution *(How is the code maintained?)*
 Commentation is done before each function to help improve the readability of the library to newcomers. An example of this is shown below.
 
 ```C
@@ -43,33 +43,11 @@ Vec3 vec3_add(Vec3 a, Vec3 b) {
 ```
 
 # Features
-## Implemented
-* 2D Vectors (`Vec2`)
+Sol so far has support for 2D, 3D, and 4D vectors.
 
-* 3D Vectors (`Vec3`)
+This includes basic functions (dimension-wise addition, subtraction, multiplication, and division) as well as more advanced vector math functions, such as cross product, dot product, rotation, magnitue, and normalization.
 
-* 4D Vectors (`Vec4`)
-
-## Planned
-* 2D Lines (`Lin2`)
-
-* 3D Lines (`Lin3`)
-
-* 2D Rays (`Ray2`)
-
-* 3D Rays (`Ray3`)
-
-* 2D Segments (`Seg2`)
-
-* 3D Segments (`Seg3`)
-
-* 2D Boxes (`Box2`)
-
-* 3D Boxes (`Box3`)
-
-* 2D Spheres (`Sph2`) [Better known as circles, but muh consistency.]
-
-* 3D Spheres (`Sph3`)
+All of this is SIMD-accelerated, meaning a reasonably modern CPU can do most of the basic vector functions in a single instruction.
 
 # Examples
 Here are some basic examples for C and Nim, using Sol bundled into the current directory.
