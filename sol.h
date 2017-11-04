@@ -390,10 +390,24 @@ Vec4 vec4_init(Float x, Float y, Float z, Float w);
 Vec4 vec4_initf(Float f);
 Vec4 vec4_zero(void);
 
-Vec4 vec4_norm(Vec4 q);
-Float vec4_mag(Vec4 q);
+Vec4 vec4_norm(Vec4 v);
+Float vec4_mag(Vec4 v);
 
-void vec4_print(Vec4 q);
+Float vec4_sum(Vec4 v);
+Vec4 vec4_add(Vec4 a, Vec4 b);
+Vec4 vec4_addf(Vec4 v, Float f);
+Vec4 vec4_sub(Vec4 a, Vec4 b);
+Vec4 vec4_subf(Vec4 v, Float f);
+Vec4 vec4_fsub(Float f, Vec4 v);
+Vec4 vec4_mul(Vec4 a, Vec4 b);
+Vec4 vec4_mulf(Vec4 v, Float f);
+Vec4 vec4_div(Vec4 a, Vec4 b);
+Vec4 vec4_divf(Vec4 v, Float f);
+Vec4 vec4_fdiv(Float f, Vec4 v);
+Vec4 vec4_avg(Vec4 a, Vec4 b);
+Vec4 vec4_avgf(Vec4 v, Float f);
+
+void vec4_print(Vec4 v);
 
 #ifdef __cplusplus
       }

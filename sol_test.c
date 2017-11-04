@@ -1,6 +1,6 @@
 // sol_test.c
 
-include "sol.h"
+#include "sol.h"
 
 int main() {
   Vec2 out = vec2_init(1, 2);

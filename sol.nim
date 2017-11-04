@@ -129,4 +129,16 @@ proc vec4_zero*(): Vec4 {.importc: "vec4_zero", header: "sol.h".}
 proc vec4_norm*(v: Vec4): Vec4 {.importc: "vec4_norm", header: "sol.h".}
 proc vec4_mag*(v: Vec4): Float {.importc: "vec4_mag", header: "sol.h".}
 
+proc vec4_sum*(v: Vec4): Float {.importc: "vec4_sum", header: "sol.h".}
+proc vec4_add*(a, b: Vec4): Vec4 {.importc: "vec4_add", header: "sol.h".}
+proc vec4_addf*(v: Vec4, f: Float): Vec4 {.importc: "vec4_addf", header: "sol.h".}
+proc vec4_sub*(a, b: Vec4): Vec4 {.importc: "vec4_sub", header: "sol.h".}
+proc vec4_subf*(v: Vec4, f: Float): Vec4 {.importc: "vec4_subf", header: "sol.h".}
+proc vec4_fsub*(f: Float, v: Vec4): Vec4 {.importc: "vec4_fsub", header: "sol.h".}
+proc vec4_div*(a, b: Vec4): Vec4 {.importc: "vec4_div", header: "sol.h".}
+proc vec4_divf*(v: Vec4, f: Float): Vec4 {.importc: "vec4_divf", header: "sol.h".}
+proc vec4_fdiv*(f: Float, v: Vec4): Vec4 {.importc: "vec4_fdiv", header: "sol.h".}
+proc vec4_avg*(a, b: Vec4): Vec4 {.importc: "vec4_avg", header: "sol.h".}
+proc vec4_avgf*(v: Vec4, f: Float): Vec4 {.importc: "vec4_avgf", header: "sol.h".}
+
 proc vec4_print*(v: Vec4): void {.importc: "vec4_print", header: "sol.h".}

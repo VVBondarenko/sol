@@ -102,12 +102,8 @@ Vec4 vec4_zero(void) {
 //   out: quaternion (Vec4)
 
 sol_inline
-Vec4 vec4_norm(Vec4 q) {
-  const Float m = vec4_mag(q);
-  return vec4_init(q.x / m,
-                   q.y / m,
-                   q.z / m,
-                   q.w / m);
+Vec4 vec4_norm(Vec4 v) {
+  return vec4_divf(v, vec4_mag(v));
 }
 
 /// vec4_mag ///
@@ -119,11 +115,243 @@ Vec4 vec4_norm(Vec4 q) {
 //   out: scalar (Float)
 
 sol_inline
-Float vec4_mag(Vec4 q) {
-  return sqrtf((q.x * q.x)
-             + (q.y * q.y)
-             + (q.z * q.z)
-             + (q.w * q.w));
+Float vec4_mag(Vec4 v) {
+  return sqrtf(vec4_sum(vec4_mul(v, v)));
+}
+
+  //////////////////////////////////////////////////////////////////////////////
+ // Vec4 Basic Functions //////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+/// vec4_sum ///
+// Description
+//   Gets the sum of all the dimensions of a vector.
+// Arguments
+//   v: vector (Vec4)
+// Returns
+//   scalar (Float) {v.x + v.y + v.z + v.w} 
+
+sol_inline
+Float vec4_sum(Vec4 v) {
+  return v.x + v.y + v.z + v.w;
+}
+
+/// vec4_add ///
+// Description
+//   Adds the elements of two vectors.
+// Arguments
+//   a: vector (Vec4)
+//   b: vector (Vec4)
+// Returns
+//   vector (Vec4) {a.xyz + b.xyz} 
+
+sol_inline
+Vec4 vec4_add(Vec4 a, Vec4 b) {
+  Vec4 out;
+  #if defined(SOL_AVX_64)
+        out.vec = _mm256_add_pd(a.vec, b.vec);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_add_ps(a.vec, b.vec);
+  #elif defined(SOL_NEON_64)
+        out.vec = vaddq_f64(a.vec, b.vec);
+  #elif defined(SOL_NEON)
+        out.vec = vaddq_f32(a.vec, b.vec);
+  #else
+        out.x = a.x + b.x;
+        out.y = a.y + b.y;
+        out.z = a.z + b.z;
+        out.w = a.w + b.w;
+  #endif
+  return out;
+}
+
+/// vec4_addf ///
+// Description
+//   Adds a scalar to each element of a vector.
+// Arguments
+//   v: vector (Vec4)
+//   f: scalar (Float)
+// Returns
+//   vector (Vec4) {v.xyz + f}
+
+sol_inline
+Vec4 vec4_addf(Vec4 v, Float f) {
+  return vec4_add(v, vec4_initf(f)); 
+}
+
+/// vec4_sub ///
+// Description
+//   Subtract the elements of one vector from another.
+// Arguments
+//   a: vector (Vec4)
+//   b: vector (Vec4)
+// Returns
+//   vector (Vec4) {a.xyz - b.xyz}
+
+sol_inline
+Vec4 vec4_sub(Vec4 a, Vec4 b) {
+  Vec4 out;
+  #if defined(SOL_AVX_64)
+        out.vec = _mm256_add_pd(a.vec, b.vec);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_add_ps(a.vec, b.vec);
+  #elif defined(SOL_NEON_64)
+        out.vec = vsubq_f64(a.vec, b.vec);
+  #elif defined(SOL_NEON)
+        out.vec = vsubq_f32(a.vec, b.vec);
+  #else
+        out.x = a.x - b.x;
+        out.y = a.y - b.y;
+        out.z = a.z - b.z;
+        out.w = a.w - b.w;
+  #endif
+  return out;
+}
+
+/// vec4_subf ///
+// Description
+//   Subtracts a scalar from each element of a vector.
+// Arguments
+//   v: vector (Vec4)
+//   f: scalar (Float)
+// Returns
+//   vector (Vec4) {v.xyz - f}
+
+sol_inline
+Vec4 vec4_subf(Vec4 v, Float f) {
+  return vec4_sub(v, vec4_initf(f));
+}
+
+/// vec4_fsub ///
+// Description
+//   Subtracts each of a vector'e elements from a scalar.
+// Arguments
+//   f: scalar (Float)
+//   v: vector (Vec4)
+// Returns
+//   vector (Vec4) {f - v.xyz}
+
+sol_inline
+Vec4 vec4_fsub(Float f, Vec4 v) {
+  return vec4_sub(vec4_initf(f), v);
+}
+
+/// vec4_mul ///
+// Description
+//   Multiplies the elements of one vector by another.
+// Arguments
+//   a: vector (Vec4)
+//   b: vector (Vec4)
+// Returns
+//   vector (Vec4) {a.xyz * b.xyz}
+
+sol_inline
+Vec4 vec4_mul(Vec4 a, Vec4 b) {
+  Vec4 out;
+  #if defined(SOL_AVX_64)
+        out.vec = _mm256_mul_pd(a.vec, b.vec);
+  #elif defined(SOL_AVX)
+        out.vec = _mm_mul_ps(a.vec, b.vec);
+  #elif defined(SOL_NEON_64)
+        out.vec = vmulq_f64(a.vec, b.vec);
+  #elif defined(SOL_NEON)
+        out.vec = vmulq_f32(a.vec, b.vec);
+  #else
+        out.x = a.x * b.x;
+        out.y = a.y * b.y;
+        out.z = a.z * b.z;
+        out.w = a.w * b.w;
+  #endif
+  return out;
+}
+
+/// vec4_mulf ///
+// Description
+//   Multiplies the elements of a vector by a scalar.
+// Arguments
+//   v: vector (Vec4)
+//   f: scalar (Float)
+// Returns
+//   vector (Vec4) {v.xyz * f}
+
+sol_inline
+Vec4 vec4_mulf(Vec4 v, Float f) {
+  return vec4_mul(v, vec4_initf(f));
+}
+
+/// vec4_div ///
+// Description
+//   Divides the elements of one vector by another.
+// Arguments
+//   a: vector (Vec4)
+//   b: vector (Vec4)
+// Returns
+//   vector (Vec4) {a.xyz / b.xyz}
+
+sol_inline
+Vec4 vec4_div(Vec4 a, Vec4 b) {
+  Vec4 out;
+  out.x = a.x / b.x;
+  out.y = a.y / b.y;
+  out.z = a.z / b.z;
+  out.w = a.w / b.w;
+  return out;
+}
+
+/// vec4_divf ///
+// Description
+//   Divides the elements of a vector by a scalar.
+// Arguments
+//   v: vector (Vec4)
+//   f: scalar (Float)
+// Returns
+//   vector (Vec4) {v.xyz / f}
+
+sol_inline
+Vec4 vec4_divf(Vec4 v, Float f) {
+  return vec4_div(v, vec4_initf(f));
+}
+
+/// vec4_fdiv ///
+// Description
+//   Divides a scalar by the elements of a vector.
+// Arguments
+//   f: scalar (Float)
+//   v: vector (Vec4)
+// Returns
+//   vector (Vec4) {f / v.xyz}
+
+sol_inline
+Vec4 vec4_fdiv(Float f, Vec4 v) {
+  return vec4_div(vec4_initf(f), v);
+}
+
+/// vec4_avg ///
+// Description
+//   Averages the elements of one vector with another.
+// Arguments
+//   a: vector (Vec4)
+//   b: vector (Vec4)
+// Returns
+//   vector (Vec4) {(a.xyz + b.xyz) / 2}
+
+sol_inline
+Vec4 vec4_avg(Vec4 a, Vec4 b) {
+  return vec4_divf(vec4_mul(a, b), 2);
+}
+
+/// vec4_avgf ///
+// Description
+//   Averages the elements of a vector with a scalar.
+// Arguments
+//   v: vector (Vec4)
+//   f: scalar (Float)
+// Returns
+//   vector (Vec4) {(v.xyz + f) / 2}
+
+sol_inline
+Vec4 vec4_avgf(Vec4 v, Float f) {
+  return vec4_avg(v, vec4_initf(f));
 }
 
   //////////////////////////////////////////////////////////////////////////////
