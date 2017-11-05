@@ -7,6 +7,31 @@ Nim bindings are provided "out of the box" for those who don't want to deal with
 ## Disclaimer
 This is a hobbyist project. Please don't use this for production-level code until further notice.
 
+# Examples
+Here are some basic examples for C and Nim, using Sol bundled into the current directory.
+
+```C
+// Native C11 Example
+#include "sol/sol.h"
+
+int main() {
+  Vec3 a = vec3_init(0, 1, 2);
+  Vec3 b = vec3_init(2, 1, 0);
+  Vec3 c = vec3_cross(a, b);
+  vec3_print(c);
+  return 0;
+}
+```
+```Nim
+# Nim Binding Example
+import sol/sol
+
+var a = vec3_init(0, 1, 2)
+var b = vec3_init(2, 1, 0)
+var c = vec3_cross(a, b)
+vec3_print(c)
+```
+
 # Goals
 ## Speed *(Why C?)*
 C is well-known for being a "fast" language, not because the language spec itself somehow makes it fast, but because the cost of low-level operations is well-displayed to the programmer and because of compiler maturity and ready availability of intrinsics without any sort of linking overhead.
@@ -40,35 +65,4 @@ sol_inline
 Vec3 vec3_add(Vec3 a, Vec3 b) {
   // etc.
 }
-```
-
-# Features
-Sol so far has support for 2D, 3D, and 4D vectors.
-
-This includes basic functions (dimension-wise addition, subtraction, multiplication, and division) as well as more advanced vector math functions, such as cross product, dot product, rotation, magnitue, and normalization.
-
-All of this is SIMD-accelerated, meaning a reasonably modern CPU can do most of the basic vector functions in a single instruction.
-
-# Examples
-Here are some basic examples for C and Nim, using Sol bundled into the current directory.
-## C
-```C
-#include "sol/sol.h"
-
-int main() {
-  Vec3 a = vec3_init(0, 1, 2);
-  Vec3 b = vec3_init(2, 1, 0);
-  Vec3 c = vec3_cross(a, b);
-  vec3_print(c);
-  return 0;
-}
-```
-## Nim
-```Nim
-import sol/sol
-
-var a = vec3_init(0, 1, 2)
-var b = vec3_init(2, 1, 0)
-var c = vec3_cross(a, b)
-vec3_print(c)
 ```
