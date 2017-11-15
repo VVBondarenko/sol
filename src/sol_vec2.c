@@ -112,7 +112,7 @@ Vec2 vec2_norm(Vec2 v) {
 
 sol_inline
 Float vec2_mag(Vec2 v) {
-  return sqrt(vec2_dot(v, v));
+  return flt_sqrt(vec2_dot(v, v));
 }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -130,8 +130,8 @@ Float vec2_mag(Vec2 v) {
 
 sol_inline
 Vec2 vec2_rot(Vec2 v, Float rad) {
-  Float cs = cos(rad);
-  Float sn = sin(rad);
+  Float cs = flt_cos(rad);
+  Float sn = flt_sin(rad);
   return vec2_init((v.x * cs) - (v.y * sn),
                    (v.x * sn) + (v.y * cs));
 }

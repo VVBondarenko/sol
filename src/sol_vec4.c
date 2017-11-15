@@ -116,7 +116,7 @@ Vec4 vec4_norm(Vec4 v) {
 
 sol_inline
 Float vec4_mag(Vec4 v) {
-  return sqrt(vec4_sum(vec4_mul(v, v)));
+  return flt_sqrt(vec4_sum(vec4_mul(v, v)));
 }
 
   //////////////////////////////////////////////////////////////////////////////

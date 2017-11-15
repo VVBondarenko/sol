@@ -24,7 +24,7 @@
  // Default Config ////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-#define SOL_F_SIZE_DEFAULT 64 // Set the size of the sol_f float value.
+#define SOL_F_SIZE_DEFAULT 128 // Set the size of the sol_f float value.
 #define SOL_INLINE_DEFAULT true // Enables function inlining.
 #define SOL_FAM_DEFAULT true // Enables C99 "Flexible Array Members" (FAM).
 #define SOL_SIMD_DEFAULT true // Enables automatic selection of OMP/AVX/NEON.
@@ -158,6 +158,40 @@
   //////////////////////////////////////////////////////////////////////////////
  // Math Macros ///////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
+
+/// M_PI ///
+// Description
+//   The constant used to equal the value of Pi for Sol's internal calculations.
+//   It is currently in low accuracy, but this will be improved.
+
+#ifndef M_PI
+      #define M_PI ((Float) (3.14))
+#endif
+
+/// M_TAU ///
+// Description
+//   A constant which is equal to two times the value of Pi. It is currently in
+//   low accuracy, but this will be improved.
+
+#ifndef M_TAU
+      #define M_TAU ((Float) (6.28))
+#endif
+
+/// M_G ///
+// Description
+//   A constant which is equal to the acceleration of gravity in m/s/s.
+
+#ifndef M_G
+      #define M_G ((Float) (9.80665))
+#endif
+
+/// M_C ///
+// Description
+//   A constant which is equal to the speed of light in m/s.
+
+#ifndef M_C
+      #define M_C ((Float) 299792000)
+#endif
 
   //////////////////////////////////////////////////////////////////////////////
  // Struct Type Definitions ///////////////////////////////////////////////////
@@ -317,6 +351,16 @@ typedef struct type_sph3 {
   Vec3 pos;
   Float rad;
 } Sph3;
+
+  //////////////////////////////////////////////////////////////////////////////
+ // Float Function Declarations ///////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+Float flt_clamp(Float f, Float lower, Float upper);
+Float flt_pow(Float a, Float b);
+Float flt_sqrt(Float f);
+Float flt_sin(Float f);
+Float flt_cos(Float f);
 
   //////////////////////////////////////////////////////////////////////////////
  // Vec2 Function Declarations ////////////////////////////////////////////////

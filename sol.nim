@@ -17,6 +17,7 @@
 """
 .}
 
+{.compile: "./src/sol_flt.c".}
 {.compile: "./src/sol_vec2.c".}
 {.compile: "./src/sol_vec3.c".}
 {.compile: "./src/sol_vec4.c".}
@@ -58,6 +59,16 @@ type Sph2* {.importc: "Sph2", header: "sol.h".} = object
 type Sph3* {.importc: "Sph3", header: "sol.h".} = object
     pos*: Vec3
     rad*: Float
+
+################################################################################
+# Float Functions ##############################################################
+################################################################################
+
+proc flt_clamp(f, lower, upper: Float): Float {.importc: "flt_clamp", header: "sol.h".}
+proc flt_pow(a, b: Float): Float {.importc: "flt_pow", header: "sol.h".}
+proc flt_sqrt(f: Float): Float {.importc: "flt_sqrt", header: "sol.h".}
+proc flt_sin(f: Float): Float {.importc: "flt_sin", header: "sol.h".}
+proc flt_cos(f: Float): Float {.importc: "flt_cos", header: "sol.h".}
 
 ################################################################################
 # Vec2 Functions ###############################################################
