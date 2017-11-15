@@ -114,7 +114,7 @@ Vec3 vec3_norm(Vec3 v) {
 
 sol_inline
 Float vec3_mag(Vec3 v) {
-  return sqrtf(vec3_dot(v, v));
+  return sqrt(vec3_dot(v, v));
 }
 
   //////////////////////////////////////////////////////////////////////////////
