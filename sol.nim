@@ -29,7 +29,7 @@
 # Type Definitions #############################################################
 ################################################################################
 
-type Float {.importc: "Float", header: "sol.h".} = cfloat
+type Float* {.importc: "Float", header: "sol.h".} = cfloat
 
 type Vec2* {.importc: "Vec2", header: "sol.h".} = object
     x*, y*: Float
@@ -64,11 +64,11 @@ type Sph3* {.importc: "Sph3", header: "sol.h".} = object
 # Float Functions ##############################################################
 ################################################################################
 
-proc flt_clamp(f, lower, upper: Float): Float {.importc: "flt_clamp", header: "sol.h".}
-proc flt_pow(a, b: Float): Float {.importc: "flt_pow", header: "sol.h".}
-proc flt_sqrt(f: Float): Float {.importc: "flt_sqrt", header: "sol.h".}
-proc flt_sin(f: Float): Float {.importc: "flt_sin", header: "sol.h".}
-proc flt_cos(f: Float): Float {.importc: "flt_cos", header: "sol.h".}
+proc flt_clamp*(f, lower, upper: Float): Float {.importc: "flt_clamp", header: "sol.h".}
+proc flt_pow*(a, b: Float): Float {.importc: "flt_pow", header: "sol.h".}
+proc flt_sqrt*(f: Float): Float {.importc: "flt_sqrt", header: "sol.h".}
+proc flt_sin*(f: Float): Float {.importc: "flt_sin", header: "sol.h".}
+proc flt_cos*(f: Float): Float {.importc: "flt_cos", header: "sol.h".}
 
 ################################################################################
 # Vec2 Functions ###############################################################
@@ -91,8 +91,8 @@ proc vec2_addf*(v: Vec2, f: Float): Vec2 {.importc: "vec2_addf", header: "sol.h"
 proc vec2_sub*(a, b: Vec2): Vec2 {.importc: "vec2_sub", header: "sol.h".}
 proc vec2_subf*(v: Vec2, f: Float): Vec2 {.importc: "vec2_subf", header: "sol.h".}
 proc vec2_fsub*(f: Float, v: Vec2): Vec2 {.importc: "vec2_fsub", header: "sol.h".}
-proc vec2_mult*(a, b: Vec2): Vec2 {.importc: "vec2_mult", header: "sol.h".}
-proc vec2_multf*(v: Vec2, f: Float): Vec2 {.importc: "vec2_multf", header: "sol.h".}
+proc vec2_mul*(a, b: Vec2): Vec2 {.importc: "vec2_mult", header: "sol.h".}
+proc vec2_mulf*(v: Vec2, f: Float): Vec2 {.importc: "vec2_multf", header: "sol.h".}
 proc vec2_div*(a, b: Vec2): Vec2 {.importc: "vec2_div", header: "sol.h".}
 proc vec2_divf*(v: Vec2, f: Float): Vec2 {.importc: "vec2_divf", header: "sol.h".}
 proc vec2_fdiv*(f: Float, v: Vec2): Vec2 {.importc: "vec2_fdiv", header: "sol.h".}
@@ -121,8 +121,8 @@ proc vec3_addf*(v: Vec3, f: Float): Vec3 {.importc: "vec3_addf", header: "sol.h"
 proc vec3_sub*(a, b: Vec3): Vec3 {.importc: "vec3_sub", header: "sol.h".}
 proc vec3_subf*(v: Vec3, f: Float): Vec3 {.importc: "vec3_subf", header: "sol.h".}
 proc vec3_fsub*(f: Float, v: Vec3): Vec3 {.importc: "vec3_fsub", header: "sol.h".}
-proc vec3_mult*(a, b: Vec3): Vec3 {.importc: "vec3_mult", header: "sol.h".}
-proc vec3_multf*(v: Vec3, f: Float): Vec3 {.importc: "vec3_multf", header: "sol.h".}
+proc vec3_mul*(a, b: Vec3): Vec3 {.importc: "vec3_mult", header: "sol.h".}
+proc vec3_mulf*(v: Vec3, f: Float): Vec3 {.importc: "vec3_multf", header: "sol.h".}
 proc vec3_div*(a, b: Vec3): Vec3 {.importc: "vec3_div", header: "sol.h".}
 proc vec3_divf*(v: Vec3, f: Float): Vec3 {.importc: "vec3_divf", header: "sol.h".}
 proc vec3_fdiv*(f: Float, v: Vec3): Vec3 {.importc: "vec3_fdiv", header: "sol.h".}
@@ -142,13 +142,15 @@ proc vec4_mag*(v: Vec4): Float {.importc: "vec4_mag", header: "sol.h".}
 
 proc vec4_sum*(v: Vec4): Float {.importc: "vec4_sum", header: "sol.h".}
 proc vec4_add*(a, b: Vec4): Vec4 {.importc: "vec4_add", header: "sol.h".}
-proc vec4_addf*(v: Vec4, f: Float): Vec4 {.importc: "vec4_addf", header: "sol.h".}
+proc vec4_addf*(v: Vec4; f: Float): Vec4 {.importc: "vec4_addf", header: "sol.h".}
 proc vec4_sub*(a, b: Vec4): Vec4 {.importc: "vec4_sub", header: "sol.h".}
-proc vec4_subf*(v: Vec4, f: Float): Vec4 {.importc: "vec4_subf", header: "sol.h".}
-proc vec4_fsub*(f: Float, v: Vec4): Vec4 {.importc: "vec4_fsub", header: "sol.h".}
+proc vec4_subf*(v: Vec4; f: Float): Vec4 {.importc: "vec4_subf", header: "sol.h".}
+proc vec4_fsub*(f: Float; v: Vec4): Vec4 {.importc: "vec4_fsub", header: "sol.h".}
+proc vec4_mul*(a, b: Vec4): Vec4 {.importc: "vec4_mul", header: "sol.h".}
+proc vec4_mulf*(v: Vec4; f: Float): Vec4 {.importc: "vec4_mulf", header: "sol.h".}
 proc vec4_div*(a, b: Vec4): Vec4 {.importc: "vec4_div", header: "sol.h".}
-proc vec4_divf*(v: Vec4, f: Float): Vec4 {.importc: "vec4_divf", header: "sol.h".}
-proc vec4_fdiv*(f: Float, v: Vec4): Vec4 {.importc: "vec4_fdiv", header: "sol.h".}
+proc vec4_divf*(v: Vec4; f: Float): Vec4 {.importc: "vec4_divf", header: "sol.h".}
+proc vec4_fdiv*(f: Float; v: Vec4): Vec4 {.importc: "vec4_fdiv", header: "sol.h".}
 proc vec4_avg*(a, b: Vec4): Vec4 {.importc: "vec4_avg", header: "sol.h".}
 proc vec4_avgf*(v: Vec4, f: Float): Vec4 {.importc: "vec4_avgf", header: "sol.h".}
 

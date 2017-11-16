@@ -19,17 +19,14 @@ default: build
 build:
 	-@$(CC) -c $(CFLAGS) *.h src/*.c $(LDFLAGS)
 
-test:
-	-@$(CC) $(CFLAGS) sol_test.c *.h src/*.c $(LDFLAGS)
-
-nimtest:
-	-@$(NIMC) $(NIMLANG) $(NIMFLAGS) sol_test.nim
+bench:
+	-@$(NIMC) $(NIMLANG) $(NIMFLAGS) bench.nim
 
 disas:
 	-@$(CC) $(CFLAGS) -S -masm=intel *.h src/*.c $(LDFLAGS)
 
 clean:
-	-@rm -rf *.s *.o src/*.o *.out src/*.out *.exe src/*.exe sol sol_test nimcache >/dev/null || true
+	-@rm -rf *.s *.o src/*.o *.out src/*.out *.exe src/*.exe sol bench unit nimcache >/dev/null || true
 
 reset: clean
 	-@rm -rf *.gch *.a *.so *.dylib *.dll
