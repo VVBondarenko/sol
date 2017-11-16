@@ -24,7 +24,7 @@
  // Default Config ////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-#define SOL_F_SIZE_DEFAULT 128 // Set the size of the sol_f float value.
+#define SOL_F_SIZE_DEFAULT 64 // Set the size of the sol_f float value.
 #define SOL_INLINE_DEFAULT true // Enables function inlining.
 #define SOL_FAM_DEFAULT true // Enables C99 "Flexible Array Members" (FAM).
 #define SOL_SIMD_DEFAULT true // Enables automatic selection of OMP/AVX/NEON.
@@ -162,19 +162,18 @@
 /// M_PI ///
 // Description
 //   The constant used to equal the value of Pi for Sol's internal calculations.
-//   It is currently in low accuracy, but this will be improved.
 
 #ifndef M_PI
-      #define M_PI ((Float) (3.14))
+      #define M_PI ((Float) (3.14159265358979323846))
 #endif
 
 /// M_TAU ///
 // Description
-//   A constant which is equal to two times the value of Pi. It is currently in
-//   low accuracy, but this will be improved.
+//   A constant which is equal to two times the value of Pi for Sol's internal
+//   calculations.
 
 #ifndef M_TAU
-      #define M_TAU ((Float) (6.28))
+      #define M_TAU ((Float) (6.28318530717958647692))
 #endif
 
 /// M_G ///
