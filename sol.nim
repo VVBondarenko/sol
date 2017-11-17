@@ -91,11 +91,13 @@ proc vec2_addf*(v: Vec2, f: Float): Vec2 {.importc: "vec2_addf", header: "sol.h"
 proc vec2_sub*(a, b: Vec2): Vec2 {.importc: "vec2_sub", header: "sol.h".}
 proc vec2_subf*(v: Vec2, f: Float): Vec2 {.importc: "vec2_subf", header: "sol.h".}
 proc vec2_fsub*(f: Float, v: Vec2): Vec2 {.importc: "vec2_fsub", header: "sol.h".}
-proc vec2_mul*(a, b: Vec2): Vec2 {.importc: "vec2_mult", header: "sol.h".}
-proc vec2_mulf*(v: Vec2, f: Float): Vec2 {.importc: "vec2_multf", header: "sol.h".}
+proc vec2_mul*(a, b: Vec2): Vec2 {.importc: "vec2_mul", header: "sol.h".}
+proc vec2_mulf*(v: Vec2, f: Float): Vec2 {.importc: "vec2_mulf", header: "sol.h".}
 proc vec2_div*(a, b: Vec2): Vec2 {.importc: "vec2_div", header: "sol.h".}
 proc vec2_divf*(v: Vec2, f: Float): Vec2 {.importc: "vec2_divf", header: "sol.h".}
 proc vec2_fdiv*(f: Float, v: Vec2): Vec2 {.importc: "vec2_fdiv", header: "sol.h".}
+proc vec2_avg*(a, b: Vec2): Vec2 {.importc: "vec2_avg", header: "sol.h".}
+proc vec2_avgf*(v: Vec2, f: Float): Vec2 {.importc: "vec2_avgf", header: "sol.h".}
 
 proc vec2_print*(v: Vec2): void {.importc: "vec2_print", header: "sol.h".}
 
@@ -121,11 +123,13 @@ proc vec3_addf*(v: Vec3, f: Float): Vec3 {.importc: "vec3_addf", header: "sol.h"
 proc vec3_sub*(a, b: Vec3): Vec3 {.importc: "vec3_sub", header: "sol.h".}
 proc vec3_subf*(v: Vec3, f: Float): Vec3 {.importc: "vec3_subf", header: "sol.h".}
 proc vec3_fsub*(f: Float, v: Vec3): Vec3 {.importc: "vec3_fsub", header: "sol.h".}
-proc vec3_mul*(a, b: Vec3): Vec3 {.importc: "vec3_mult", header: "sol.h".}
-proc vec3_mulf*(v: Vec3, f: Float): Vec3 {.importc: "vec3_multf", header: "sol.h".}
+proc vec3_mul*(a, b: Vec3): Vec3 {.importc: "vec3_mul", header: "sol.h".}
+proc vec3_mulf*(v: Vec3, f: Float): Vec3 {.importc: "vec3_mulf", header: "sol.h".}
 proc vec3_div*(a, b: Vec3): Vec3 {.importc: "vec3_div", header: "sol.h".}
 proc vec3_divf*(v: Vec3, f: Float): Vec3 {.importc: "vec3_divf", header: "sol.h".}
 proc vec3_fdiv*(f: Float, v: Vec3): Vec3 {.importc: "vec3_fdiv", header: "sol.h".}
+proc vec3_avg*(a, b: Vec3): Vec3 {.importc: "vec3_avg", header: "sol.h".}
+proc vec3_avgf*(v: Vec3, f: Float): Vec3 {.importc: "vec3_avgf", header: "sol.h".}
 
 proc vec3_print*(v: Vec3): void {.importc: "vec3_print", header: "sol.h".}
 
