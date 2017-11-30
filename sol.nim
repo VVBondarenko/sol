@@ -81,8 +81,9 @@ proc vec2_zero*(): Vec2 {.importc: "vec2_zero", header: "sol.h".}
 proc vec2_norm*(v: Vec2): Vec2 {.importc: "vec2_norm", header: "sol.h".}
 proc vec2_mag*(v: Vec2): Float {.importc: "vec2_mag", header: "sol.h".}
 
-proc vec2_rot*(v: Vec2, rad: Float): Float {.importc: "vec2_rot", header: "sol.h".}
+proc vec2_rot*(v: Vec2, rad: Float): Vec2 {.importc: "vec2_rot", header: "sol.h".}
 
+proc vec2_cross*(a, b: Vec2): Float {.importc: "vec2_cross", header: "sol.h".}
 proc vec2_dot*(a, b: Vec2): Float {.importc: "vec2_dot", header: "sol.h".}
 
 proc vec2_sum*(v: Vec2): Float {.importc: "vec2_sum", header: "sol.h".}
@@ -115,7 +116,7 @@ proc vec3_mag*(v: Vec3): Float {.importc: "vec3_mag", header: "sol.h".}
 proc vec3_rot*(v: Vec3, q: Vec4): Vec3 {.importc: "vec3_rot", header: "sol.h".}
 
 proc vec3_cross*(a, b: Vec3): Vec3 {.importc: "vec3_cross", header: "sol.h".}
-proc vec3_dot*(a, b: Vec3): Vec3 {.importc: "vec3_dot", header: "sol.h".}
+proc vec3_dot*(a, b: Vec3): Float {.importc: "vec3_dot", header: "sol.h".}
 
 proc vec3_sum*(v: Vec3): Float {.importc: "vec3_sum", header: "sol.h".}
 proc vec3_add*(a, b: Vec3): Vec3 {.importc: "vec3_add", header: "sol.h".}
@@ -159,3 +160,285 @@ proc vec4_avg*(a, b: Vec4): Vec4 {.importc: "vec4_avg", header: "sol.h".}
 proc vec4_avgf*(v: Vec4, f: Float): Vec4 {.importc: "vec4_avgf", header: "sol.h".}
 
 proc vec4_print*(v: Vec4): void {.importc: "vec4_print", header: "sol.h".}
+
+#########################
+# Vec2 Initializer Meta #
+#########################
+
+proc vec2*(x, y: Float): Vec2 {.inline.} =
+    return vec2_init(x, y)
+
+proc vec*(x, y: Float): Vec2 {.inline.} =
+    return vec2_init(x, y)
+
+######################
+# Vec2 Advanced Meta #
+######################
+
+proc norm*(v: Vec2): Vec2 {.inline.} =
+    return vec2_norm(v)
+
+proc mag*(v: Vec2): Float {.inline.} =
+    return vec2_mag(v)
+
+proc `rot`*(v: Vec2; rad: Float): Vec2 {.inline.} =
+    return vec2_rot(v, rad)
+
+proc `cross`*(a, b: Vec2): Float {.inline.} =
+    return vec2_cross(a, b)
+
+proc `dot`*(a, b: Vec2): Float {.inline.} =
+    return vec2_dot(a, b)
+
+#################
+# Vec2 Op= Meta #
+#################
+
+proc `+=`*(a: var Vec2; b: Vec2) {.inline.} =
+    a = vec2_add(a, b)
+
+proc `+=`*(v: var Vec2; f: Float) {.inline.} =
+    v = vec2_addf(v, f)
+
+proc `-=`*(a: var Vec2; b: Vec2) {.inline.} =
+    a = vec2_sub(a, b)
+
+proc `-=`*(v: var Vec2; f: Float) {.inline.} =
+    v = vec2_subf(v, f)
+
+proc `*=`*(a: var Vec2; b: Vec2) {.inline.} =
+    a = vec2_mul(a, b)
+
+proc `*=`*(v: var Vec2; f: Float) {.inline.} =
+    v = vec2_mulf(v, f)
+
+proc `/=`*(a: var Vec2; b: Vec2) {.inline.} =
+    a = vec2_div(a, b)
+
+proc `/=`*(v: var Vec2; f: Float) {.inline.} =
+    v = vec2_divf(v, f)
+
+###################
+# Vec2 Basic Meta #
+###################
+
+proc `+`*(a, b: Vec2): Vec2 {.inline.} =
+    return vec2_add(a, b)
+
+proc `+`*(v: Vec2; f: Float): Vec2 {.inline.} =
+    return vec2_addf(v, f)
+
+proc `+`*(f: Float; v: Vec2): Vec2 {.inline.} =
+    return vec2_addf(v, f)
+
+proc `-`*(a, b: Vec2): Vec2 {.inline.} =
+    return vec2_sub(a, b)
+
+proc `-`*(v: Vec2; f: Float): Vec2 {.inline.} =
+    return vec2_subf(v, f)
+
+proc `-`*(f: Float; v: Vec2): Vec2 {.inline.} =
+    return vec2_fsub(f, v)
+
+proc `*`*(a, b: Vec2): Vec2 {.inline.} =
+    return vec2_mul(a, b)
+
+proc `*`*(v: Vec2; f: Float): Vec2 {.inline.} =
+    return vec2_mulf(v, f)
+
+proc `*`*(f: Float; v: Vec2): Vec2 {.inline.} =
+    return vec2_mulf(v, f)
+
+proc `/`*(a, b: Vec2): Vec2 {.inline.} =
+    return vec2_div(a, b)
+
+proc `/`*(v: Vec2; f: Float): Vec2 {.inline.} =
+    return vec2_divf(v, f)
+
+proc `/`*(f: Float, v: Vec2): Vec2 {.inline.} =
+    return vec2_fdiv(f, v)
+
+#########################
+# Vec3 Initializer Meta #
+#########################
+
+proc vec3*(x, y, z: Float): Vec3 {.inline.} =
+    return vec3_init(x, y, z)
+
+proc vec*(x, y, z: Float): Vec3 {.inline.} =
+    return vec3_init(x, y, z)
+
+######################
+# Vec3 Advanced Meta #
+######################
+
+proc norm*(v: Vec3): Vec3 {.inline.} =
+    return vec3_norm(v)
+
+proc mag*(v: Vec3): Float {.inline.} =
+    return vec3_mag(v)
+
+proc `rot`*(v: Vec3; q: Vec4): Vec3 {.inline.} =
+    return vec3_rot(v, q)
+
+proc `cross`*(a, b: Vec3): Vec3 {.inline.} =
+    return vec3_cross(a, b)
+
+proc `dot`*(a, b: Vec3): Float {.inline.} =
+    return vec3_dot(a, b)
+
+#################
+# Vec3 Op= Meta #
+#################
+
+proc `+=`*(a: var Vec3; b: Vec3) {.inline.} =
+    a = vec3_add(a, b)
+
+proc `+=`*(v: var Vec3; f: Float) {.inline.} =
+    v = vec3_addf(v, f)
+
+proc `-=`*(a: var Vec3; b: Vec3) {.inline.} =
+    a = vec3_sub(a, b)
+
+proc `-=`*(v: var Vec3; f: Float) {.inline.} =
+    v = vec3_subf(v, f)
+
+proc `*=`*(a: var Vec3; b: Vec3) {.inline.} =
+    a = vec3_mul(a, b)
+
+proc `*=`*(v: var Vec3; f: Float) {.inline.} =
+    v = vec3_mulf(v, f)
+
+proc `/=`*(a: var Vec3; b: Vec3) {.inline.} =
+    a = vec3_div(a, b)
+
+proc `/=`*(v: var Vec3; f: Float) {.inline.} =
+    v = vec3_divf(v, f)
+
+###################
+# Vec3 Basic Meta #
+###################
+
+proc `+`*(a, b: Vec3): Vec3 {.inline.} =
+    return vec3_add(a, b)
+
+proc `+`*(v: Vec3; f: Float): Vec3 {.inline.} =
+    return vec3_addf(v, f)
+
+proc `+`*(f: Float, v: Vec3): Vec3 {.inline.} =
+    return vec3_addf(v, f)
+
+proc `-`*(a, b: Vec3): Vec3 {.inline.} =
+    return vec3_sub(a, b)
+
+proc `-`*(v: Vec3; f: Float): Vec3 {.inline.} =
+    return vec3_subf(v, f)
+
+proc `-`*(f: Float; v: Vec3): Vec3 {.inline.} =
+    return vec3_fsub(f, v)
+
+proc `*`*(a, b: Vec3): Vec3 {.inline.} =
+    return vec3_mul(a, b)
+
+proc `*`*(v: Vec3; f: Float): Vec3 {.inline.} =
+    return vec3_mulf(v, f)
+
+proc `*`*(f: Float; v: Vec3): Vec3 {.inline.} =
+    return vec3_mulf(v, f)
+
+proc `/`*(a, b: Vec3): Vec3 {.inline.} =
+    return vec3_div(a, b)
+
+proc `/`*(v: Vec3; f: Float): Vec3 {.inline.} =
+    return vec3_divf(v, f)
+
+proc `/`*(f: Float; v: Vec3): Vec3 {.inline.} =
+    return vec3_fdiv(f, v)
+
+#########################
+# Vec4 Initializer Meta #
+#########################
+
+proc vec4*(x, y, z, w: Float): Vec4 {.inline.} =
+    return vec4_init(x, y, z, w)
+
+proc vec*(x, y, z, w: Float): Vec4 {.inline.} =
+    return vec4_init(x, y, z, w)
+
+######################
+# Vec4 Advanced Meta #
+######################
+
+proc norm*(v: Vec4): Vec4 {.inline.} =
+    return vec4_norm(v)
+
+proc mag*(v: Vec4): Float {.inline.} =
+    return vec4_mag(v)
+
+#################
+# Vec4 Op= Meta #
+#################
+
+proc `+=`*(a: var Vec4; b: Vec4) {.inline.} =
+    a = vec4_add(a, b)
+
+proc `+=`*(v: var Vec4; f: Float) {.inline.} =
+    v = vec4_addf(v, f)
+
+proc `-=`*(a: var Vec4; b: Vec4) {.inline.} =
+    a = vec4_sub(a, b)
+
+proc `-=`*(v: var Vec4; f: Float) {.inline.} =
+    v = vec4_subf(v, f)
+
+proc `*=`*(a: var Vec4; b: Vec4) {.inline.} =
+    a = vec4_mul(a, b)
+
+proc `*=`*(v: var Vec4; f: Float) {.inline.} =
+    v = vec4_mulf(v, f)
+
+proc `/=`*(a: var Vec4; b: Vec4) {.inline.} =
+    a = vec4_div(a, b)
+
+proc `/=`*(v: var Vec4; f: Float) {.inline.} =
+    v = vec4_divf(v, f)
+
+###################
+# Vec4 Basic Meta #
+###################
+
+proc `+`*(a, b: Vec4): Vec4 {.inline.} =
+    return vec4_add(a, b)
+
+proc `+`*(v: Vec4; f: Float): Vec4 {.inline.} =
+    return vec4_addf(v, f)
+
+proc `+`*(f: Float; v: Vec4): Vec4 {.inline.} =
+    return vec4_addf(v, f)
+
+proc `-`*(a, b: Vec4): Vec4 {.inline.} =
+    return vec4_sub(a, b)
+
+proc `-`*(v: Vec4; f: Float): Vec4 {.inline.} =
+    return vec4_subf(v, f)
+
+proc `-`*(f: Float; v: Vec4): Vec4 {.inline.} =
+    return vec4_fsub(f, v)
+
+proc `*`*(a, b: Vec4): Vec4 {.inline.} =
+    return vec4_mul(a, b)
+
+proc `*`*(v: Vec4; f: Float): Vec4 {.inline.} =
+    return vec4_mulf(v, f)
+
+proc `*`*(f: Float; v: Vec4): Vec4 {.inline.} =
+    return vec4_mulf(v, f)
+
+proc `/`*(a, b: Vec4): Vec4 {.inline.} =
+    return vec4_div(a, b)
+
+proc `/`*(v: Vec4; f: Float): Vec4 {.inline.} =
+    return vec4_divf(v, f)
+
+proc `/`*(f: Float; v: Vec4): Vec4 {.inline.} =
+    return vec4_fdiv(f, v)
