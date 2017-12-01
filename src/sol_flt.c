@@ -2,6 +2,10 @@
  // sol_flt.c //
 ///////////////
 
+  ///////////////////
+ // Local Headers //
+///////////////////
+
 #include "../sol.h"
 
 /// flt_clamp ///
@@ -80,5 +84,21 @@ Float flt_cos(Float f) {
         return cos(f);
   #else
         return cosf(f);
+  #endif
+}
+
+/// flt_acos ///
+// Description
+//   A wrapper for acosf/acos/acosl which respects
+//   the accuracy of Sol's Float type.
+
+sol_inline
+Float flt_acos(Float f) {
+  #if SOL_F_SIZE > 64
+        return acosl(f);
+  #elif SOL_F_SIZE > 32
+        return acos(f);
+  #else
+        return acosf(f);
   #endif
 }

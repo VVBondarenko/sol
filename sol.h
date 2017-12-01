@@ -360,6 +360,24 @@ Float flt_pow(Float a, Float b);
 Float flt_sqrt(Float f);
 Float flt_sin(Float f);
 Float flt_cos(Float f);
+Float flt_acos(Float f);
+
+  //////////////////////////////////////////////////////////////////////////////
+ // Conversion Function Declarations //////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+Vec4 cv_axis_quat(Vec4 axis);
+Vec4 cv_quat_axis(Vec4 quat);
+
+Vec2 cv_vec3_vec2(Vec3 v);
+Vec2 cv_vec4_vec2(Vec4 v);
+Vec3 cv_vec2_vec3(Vec2 v, Float z);
+Vec3 cv_vec4_vec3(Vec4 v);
+Vec4 cv_vec2_vec4(Vec2 v, Float z, Float w);
+Vec4 cv_vec3_vec4(Vec3 v, Float w);
+
+Float cv_deg_rad(Float deg);
+Float cv_rad_deg(Float rad);
 
   //////////////////////////////////////////////////////////////////////////////
  // Vec2 Function Declarations ////////////////////////////////////////////////

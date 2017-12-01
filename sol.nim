@@ -18,6 +18,7 @@
 .}
 
 {.compile: "./src/sol_flt.c".}
+{.compile: "./src/sol_conv.c".}
 {.compile: "./src/sol_vec2.c".}
 {.compile: "./src/sol_vec3.c".}
 {.compile: "./src/sol_vec4.c".}
@@ -69,6 +70,24 @@ proc flt_pow*(a, b: Float): Float {.importc: "flt_pow", header: "sol.h".}
 proc flt_sqrt*(f: Float): Float {.importc: "flt_sqrt", header: "sol.h".}
 proc flt_sin*(f: Float): Float {.importc: "flt_sin", header: "sol.h".}
 proc flt_cos*(f: Float): Float {.importc: "flt_cos", header: "sol.h".}
+proc flt_acos*(f: Float): Float {.importc: "flt_acos", header: "sol.h".}
+
+################################################################################
+# Conversion Functions #########################################################
+################################################################################
+
+proc cv_axis_quat*(axis: Vec4): Vec4 {.importc: "cv_axis_quat", header: "sol.h".}
+proc cv_quat_axis*(quat: Vec4): Vec4 {.importc: "cv_quat_axis", header: "sol.h".}
+
+proc cv_vec3_vec2*(v: Vec3): Vec2 {.importc: "cv_vec3_vec2", header: "sol.h".}
+proc cv_vec4_vec2*(v: Vec4): Vec2 {.importc: "cv_vec4_vec2", header: "sol.h".}
+proc cv_vec2_vec3*(v: Vec2; z: Float): Vec3 {.importc: "cv_vec2_vec3", header: "sol.h".}
+proc cv_vec4_vec3*(v: Vec4): Vec3 {.importc: "cv_vec4_vec3", header: "sol.h".}
+proc cv_vec2_vec4*(v: Vec2; z, w: Float): Vec4 {.importc: "cv_vec2_vec4", header: "sol.h".}
+proc cv_vec3_vec4*(v: Vec3; w: Float): Vec4 {.importc: "cv_vec3_vec4", header: "sol.h".}
+
+proc cv_deg_rad*(deg: Float): Float {.importc: "cv_deg_rad", header: "sol.h".}
+proc cv_rad_deg*(rad: Float): Float {.importc: "cv_rad_deg", header: "sol.h".}
 
 ################################################################################
 # Vec2 Functions ###############################################################
@@ -181,7 +200,7 @@ proc norm*(v: Vec2): Vec2 {.inline.} =
 proc mag*(v: Vec2): Float {.inline.} =
     return vec2_mag(v)
 
-proc `rot`*(v: Vec2; rad: Float): Vec2 {.inline.} =
+proc rot*(v: Vec2; rad: Float): Vec2 {.inline.} =
     return vec2_rot(v, rad)
 
 proc `cross`*(a, b: Vec2): Float {.inline.} =
@@ -278,7 +297,7 @@ proc norm*(v: Vec3): Vec3 {.inline.} =
 proc mag*(v: Vec3): Float {.inline.} =
     return vec3_mag(v)
 
-proc `rot`*(v: Vec3; q: Vec4): Vec3 {.inline.} =
+proc rot*(v: Vec3; q: Vec4): Vec3 {.inline.} =
     return vec3_rot(v, q)
 
 proc `cross`*(a, b: Vec3): Vec3 {.inline.} =
@@ -364,6 +383,9 @@ proc vec4*(x, y, z, w: Float): Vec4 {.inline.} =
 
 proc vec*(x, y, z, w: Float): Vec4 {.inline.} =
     return vec4_init(x, y, z, w)
+
+proc axis*(x, y, z, w: Float): Vec4 {.inline.} =
+    return cv_axis_quat(vec4_init(x, y, z, w))
 
 ######################
 # Vec4 Advanced Meta #
