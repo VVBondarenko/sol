@@ -384,9 +384,6 @@ proc vec4*(x, y, z, w: Float): Vec4 {.inline.} =
 proc vec*(x, y, z, w: Float): Vec4 {.inline.} =
     return vec4_init(x, y, z, w)
 
-proc axis*(x, y, z, w: Float): Vec4 {.inline.} =
-    return cv_axis_quat(vec4_init(x, y, z, w))
-
 ######################
 # Vec4 Advanced Meta #
 ######################

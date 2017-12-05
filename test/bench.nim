@@ -6,7 +6,7 @@ import strutils
 import times
 import os
 
-import sol
+import ../sol
 
 ############
 # Settings #
@@ -14,7 +14,6 @@ import sol
 
 const solRuns = 1_000_000 # How many runs to average.
 const solPrecision = 20 # Benchmark float accuracy.
-const solAlignment = 10 # Left-alignment of output.
 
 #############
 # Templates #
@@ -29,14 +28,21 @@ template bench(name: string, code: stmt) =
         code
         average += (epochTime() - start)
         i += 1
+    echo "[sol] Benchmark for: " & name
+    var output = average.formatFloat(format = ffDecimal, precision = solPrecision)
+    echo "-> Cumulative Time: " & output
     average /= solRuns
-    let output = average.formatFloat(format = ffDecimal, precision = solPrecision)
-    echo "[sol] Average time for " & name.align(solAlignment) & ": " & output
+    output = average.formatFloat(format = ffDecimal, precision = solPrecision)
+    echo "-> Average Time:    " & output
+    average = 1 / average
+    output = average.formatFloat(format = ffDecimal, precision = solPrecision)
+    echo "-> Runs Per Second: " & output
 
 ###################
 # Main Benchmarks #
 ###################
 
+var q = vec4_norm(vec4_init(0, 0, 1, 1))
 var a = vec3_init(1, 2, 3)
 var b = vec3_init(3, 2, 1)
 var c = vec3_zero()
@@ -63,6 +69,9 @@ bench "vec3_avg":
 
 bench "vec3_mag":
     f = mag c
+
+bench "vec3_rot":
+    c = vec3_rot(c, q)
 
 echo a
 echo b
